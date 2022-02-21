@@ -856,6 +856,18 @@ python-versions = ">=3.6"
 diagrams = ["jinja2", "railroad-diagrams"]
 
 [[package]]
+name = "pyproject-autoflake"
+version = "1.0.1"
+description = "pyproject-autoflake (pautoflake), a monkey patching wrapper to connect autoflake with pyproject.toml configuration."
+category = "dev"
+optional = false
+python-versions = ">=3.6,<4.0"
+
+[package.dependencies]
+autoflake = "*"
+toml = ">=0.10.1"
+
+[[package]]
 name = "pyproject-flake8"
 version = "0.0.1a2"
 description = "pyproject-flake8 (`pflake8`), a monkey patching wrapper to connect flake8 with pyproject.toml configuration"
@@ -1165,7 +1177,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8.12"
-content-hash = "ff8265c61dc5a63298ac2fd54e5f7e457cc9015db2233e281f1c096fad3a5424"
+content-hash = "eae0d712d1c6658173b2ff3411f7ab323540adac4b32189d9a87c36b6dbdeffc"
 
 [metadata.files]
 appnope = [
@@ -1609,6 +1621,10 @@ pygments = [
 pyparsing = [
     {file = "pyparsing-3.0.7-py3-none-any.whl", hash = "sha256:a6c06a88f252e6c322f65faf8f418b16213b51bdfaece0524c1c1bc30c63c484"},
     {file = "pyparsing-3.0.7.tar.gz", hash = "sha256:18ee9022775d270c55187733956460083db60b37d0d0fb357445f3094eed3eea"},
+]
+pyproject-autoflake = [
+    {file = "pyproject-autoflake-1.0.1.tar.gz", hash = "sha256:b02683b5b8cd968bb5ce8a37261ab091165b0c3a746994fe8061b7420a73c233"},
+    {file = "pyproject_autoflake-1.0.1-py3-none-any.whl", hash = "sha256:cae1f503188823c7ea0a094ea4b240000d22e67181b9bad3b66891e39243c6b6"},
 ]
 pyproject-flake8 = [
     {file = "pyproject-flake8-0.0.1a2.tar.gz", hash = "sha256:bdeca37f78ecd34bd64a49d3657d53d099f5445831071a31c46e1fe20cd61461"},
