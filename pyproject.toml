@@ -13,21 +13,27 @@ numpy = "^1.22.2"
 pytest = "^7.0.1"
 jupyter = "^1.0.0"
 snakeviz = "^2.1.1"
+yapf = "^0.32.0"
+autoflake = "^1.4"
+pyproject-autoflake = "^1.0.1"
+isort = "^5.10.1"
 flake8 = "^4.0.1"
 pyproject-flake8 = "^0.0.1-alpha.2"
-yapf = "^0.32.0"
-isort = "^5.10.1"
-autoflake = "^1.4"
 pre-commit = "^2.17.0"
 
-[tool.flake8]
-max-line-length = 120
-max-complexity = 10
+[tool.autoflake]
+in-place = true
+remove-all-unused-imports = true
+remove-unused-variables = true
 
 [tool.isort]
 py_version = 38
 profile = "black"
 line_length = 120
+
+[tool.flake8]
+max-line-length = 120
+max-complexity = 10
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
