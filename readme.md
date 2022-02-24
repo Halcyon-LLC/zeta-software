@@ -7,11 +7,55 @@
     I believe you don't have to isntall any of the recommended extensions, but you will most likely want to have the
     python extension. Everything else is just nice to have.
 
-2. Install pre-commit and configure it using `.pre-commit-condig.yaml`
+2. Install pyenv
+
+    For windows users
+    1. Install and enable linux subsystem
+    2. In your linux terminal, execute `curl https://pyenv.run | bash`
+    3. Add the following to your .bashrc
+
+        ```bash
+        export PATH="$HOME/.pyenv/bin:$PATH"
+        eval "$(pyenv init --path)"
+        eval "$(pyenv virtualenv-init -)"
+        ```
+
+    4. Restart your shell
+
+    For mac users
+    1. `brew install pyenv`
+    2. Add the following to your .zshrc( or .bashrc)
+
+        ```bash
+        export PATH="$HOME/.pyenv/bin:$PATH"
+        eval "$(pyenv init --path)"
+        eval "$(pyenv virtualenv-init -)"
+        ```
+
+    3. Restart your shell or execute `source .zshrc`
+
+3. Install poetry
+
+    For windows users
+    1. Install and enable linux subsystem
+    2. In your linux terminal, execute `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python`
+    3. Add the following to your .bashrc
+
+        ```bash
+        export PATH="$HOME/.poetry/bin:$PATH"
+        ```
+
+    4. Restart your shell
+
+    For mac users
+    1. `brew install poetry`
+    2. Done
+
+4. Install pre-commit and configure it using `.pre-commit-condig.yaml`
 
     **TLDR**
 
-    ```shell
+    ```bash
     pyenv install 3.8.12
     python -m venv .venv
     poetry install && poetry shell
