@@ -11,9 +11,8 @@
 
     For windows users
     1. [Install and enable Linux subsystem](https://ubuntu.com/wsl)
-    2. Ensure you have the pyenv [dependencies installed](https://github.com/pyenv/pyenv/wiki#suggested-build-environment) on your Windows  Subsystem for Linux
-    3. In your Linux terminal, execute `curl https://pyenv.run | bash`
-    4. Add the following to your .bashrc
+    2. In your Linux terminal, execute `curl https://pyenv.run | bash`
+    3. Add the following to your .bashrc
 
         ```bash
         export PATH="$HOME/.pyenv/bin:$PATH"
@@ -24,9 +23,8 @@
     4. Restart your shell
 
     For mac users
-    1. Ensure you have the pyenv [dependencies installed](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
-    2. `brew install pyenv`
-    3. Add the following to your .zshrc( or .bashrc)
+    1. `brew install pyenv`
+    2. Add the following to your .zshrc( or .bashrc)
 
         ```bash
         export PATH="$HOME/.pyenv/bin:$PATH"
@@ -55,7 +53,7 @@
 
 4. Install pre-commit and configure it using `.pre-commit-condig.yaml`
 
-    ### All together now
+    **All together now**
 
     ```bash
     cd <path_to_zeta_software_repository>
@@ -68,6 +66,7 @@
     You have to choose what python version management tool and dependency management tool use, but **pyenv** and
     **poetry** are recommended. This instruction is going to assume you are using pyenv and poetry.\
     Once you have pyenv, install python version **3.8.12** by `pyenv install 3.8.12`.\
+    *If pyenv fails to install, please ensure your meet the [system requirements](https://github.com/pyenv/pyenv/wiki#suggested-build-environment).*\
     Then create a python virtual environment by `python -m venv .venv`.
     Make sure your virtual environment is using python 3.8.12 and your file structure should look like the following.
 
