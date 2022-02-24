@@ -4,15 +4,16 @@
 
 1. Install vscode extensions
 
-    I believe you don't have to isntall any of the recommended extensions, but you will most likely want to have the
+    I believe you don't have to install any of the recommended extensions, but you will most likely want to have the
     python extension. Everything else is just nice to have.
 
 2. Install pyenv
 
     For windows users
-    1. Install and enable linux subsystem
-    2. In your linux terminal, execute `curl https://pyenv.run | bash`
-    3. Add the following to your .bashrc
+    1. [Install and enable Linux subsystem](https://ubuntu.com/wsl)
+    2. Ensure you have the pyenv [dependencies installed](https://github.com/pyenv/pyenv/wiki#suggested-build-environment) on your Windows  Subsystem for Linux
+    3. In your Linux terminal, execute `curl https://pyenv.run | bash`
+    4. Add the following to your .bashrc
 
         ```bash
         export PATH="$HOME/.pyenv/bin:$PATH"
@@ -23,8 +24,9 @@
     4. Restart your shell
 
     For mac users
-    1. `brew install pyenv`
-    2. Add the following to your .zshrc( or .bashrc)
+    1. Ensure you have the pyenv [dependencies installed](https://github.com/pyenv/pyenv/wiki#suggested-build-environment)
+    2. `brew install pyenv`
+    3. Add the following to your .zshrc( or .bashrc)
 
         ```bash
         export PATH="$HOME/.pyenv/bin:$PATH"
@@ -37,8 +39,8 @@
 3. Install poetry
 
     For windows users
-    1. Install and enable linux subsystem
-    2. In your linux terminal, execute `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python`
+    1. Install and enable Linux subsystem
+    2. In your Linux terminal, execute `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python`
     3. Add the following to your .bashrc
 
         ```bash
@@ -53,9 +55,10 @@
 
 4. Install pre-commit and configure it using `.pre-commit-condig.yaml`
 
-    **TLDR**
+    ### All together now
 
     ```bash
+    cd <path_to_zeta_software_repository>
     pyenv install 3.8.12
     python -m venv .venv
     poetry install && poetry shell
