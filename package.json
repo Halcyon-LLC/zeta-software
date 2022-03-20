@@ -6,10 +6,13 @@
     "postuninstall": "electron-builder install-app-deps"
   },
   "main": "background.js",
-  "dependencies": {},
   "devDependencies": {
+    "@vue/cli-service": "^5.0.3",
     "electron": "^13.0.0",
     "electron-devtools-installer": "^3.1.0",
-    "vue-cli-plugin-electron-builder": "~2.1.1"
+    "vue-cli-plugin-electron-builder": "^2.1.1"
+  },
+  "dependencies": {
+    "vue-template-compiler": "^2.6.14"
   }
 }
