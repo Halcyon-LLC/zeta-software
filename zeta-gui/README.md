@@ -1,4 +1,4 @@
-# vue-desktop
+# zeta-gui
 
 ## Project setup
 ```
