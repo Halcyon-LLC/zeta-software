@@ -73,7 +73,6 @@ app.on('ready', async () => {
 
 
 ipcMain.on('READ_FILE', (event, payload) => {
-  console.log("Ice")
   const content = fs.readFileSync(payload.path);
   event.reply('READ_FILE', { content });
 });
