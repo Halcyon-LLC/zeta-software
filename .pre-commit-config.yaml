@@ -17,3 +17,8 @@ repos:
       - id: detect-private-key
       - id: check-yaml
       - id: check-xml
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: 'v13.0.1'
+    hooks:
+      - id: clang-format

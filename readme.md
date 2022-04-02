@@ -34,7 +34,7 @@ npm ci
 ### Compiles Vue without Electron and hot-reloads for development
 
 ```shell
-npm run serve
+npm run electron:serve
 ```
 
 ### Customize Vue configuration
