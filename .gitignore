@@ -347,3 +347,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+#Electron-builder output
+/dist_electron
