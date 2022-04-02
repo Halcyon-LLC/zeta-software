@@ -7,5 +7,6 @@
         "sonarsource.sonarlint-vscode",
         "visualstudioexptteam.vscodeintellicode",
         "streetsidesoftware.code-spell-checker",
+        "octref.vetur"
     ]
 }
