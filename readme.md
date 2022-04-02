@@ -7,7 +7,7 @@
     I believe you don't have to install any of the recommended extensions, but you will most likely want to have the
     python extension. Everything else is just nice to have.
 
-2. Install pre-commit and configure it using `.pre-commit-condig.yaml`
+2. Install pre-commit and configure it using `.pre-commit-config.yaml`
 
     **TLDR**
 
@@ -42,3 +42,5 @@ npm run electron:serve
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Contributors
+
+Roy Ataya, Aidan Cook, Hamza Kamal, Kirill Melnikov, Paige Rattenberry, and Aki Zhou
