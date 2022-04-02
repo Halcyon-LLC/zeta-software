@@ -25,31 +25,19 @@
 
 ## Commands
 
-### Project setup
+### Project setup, install npm packages based on package-lock.json
 
 ```shell
-npm install
+npm ci
 ```
 
-### Compiles and hot-reloads for development
+### Compiles Vue without Electron and hot-reloads for development
 
 ```shell
 npm run serve
 ```
 
-### Compiles and minifies for production
-
-```shell
-npm run build
-```
-
-### Lints and fixes files
-
-```shell
-npm run lint
-```
-
-### Customize configuration
+### Customize Vue configuration
 
 See [Configuration Reference](https://cli.vuejs.org/config/).
 
