@@ -1,6 +1,22 @@
 {
-	"editor.rulers": [
-		120
-	],
-	"editor.formatOnSave": true,
+  "editor.rulers": [
+    120
+  ],
+  "editor.formatOnSave": true,
+  "cSpell.words": [
+    "Aidan",
+    "Ataya",
+    "browserslist",
+    "Kamal",
+    "Kirill",
+    "Melnikov",
+    "nklayman",
+    "postuninstall",
+    "pyenv",
+    "Rattenberry",
+    "scripthost",
+    "TLDR",
+    "VUEJS",
+    "Zhou"
+  ],
 }
