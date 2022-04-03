@@ -5,6 +5,7 @@
     <TextField msg="jesus" @textUpdate="updateFirstName" />
     <NumberList/>
     <div> {{ firstName }}</div>
+    <button @click="readFile(path)"> Button to Click</button>
 
   </div>
 </template>
@@ -22,16 +23,31 @@ export default {
     NumberList,
   },
 
+   mounted() {
+    // handle reply from the backend
+    window.ipc.on('READ_FILE', (payload) => {
+      console.log(payload.content);
+    });
+  },
+
   data() {
     return {
       firstName : "",
+      path : "emptyFile.txt",
     }
   },
 
   methods: {
     updateFirstName(value) {
       this.firstName = value;
-    }
+    },
+
+    readFile(path) {
+      console.log("Hey")
+      // ask backend to read file
+      const payload = { path };
+      window.ipc.send('READ_FILE', payload);
+    },
 
   }
 };
