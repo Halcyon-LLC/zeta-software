@@ -1,36 +1,40 @@
 <template>
   <div class="hello">
     <h1>{{ msg }}</h1>
-    <input v-model="textField" :placeholder="placeholderText"  @change="sendText(textField)">
+    <input
+      v-model="textField"
+      :placeholder="placeholderText"
+      @change="sendText(textField)"
+    />
   </div>
 </template>
 
 <script>
 export default {
-  name: "TextField",
+  name: 'TextField',
 
   props: {
     msg: String,
   },
 
   data() {
-      return {
-        textField: "",
-      }
-  },
-
-  computed: {
-      placeholderText() {
-        return "Placeholder text 1";
+    return {
+      textField: '',
     }
   },
 
+  computed: {
+    placeholderText() {
+      return 'Placeholder text 1'
+    },
+  },
+
   methods: {
-      sendText(value) {
-        this.$emit('textUpdate', value)
-      }
-  }
-};
+    sendText(value) {
+      this.$emit('textUpdate', value)
+    },
+  },
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->

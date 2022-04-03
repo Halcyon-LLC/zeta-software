@@ -1,11 +1,10 @@
 {
-  "editor.rulers": [
-    120
-  ],
+  "editor.rulers": [120],
   "editor.formatOnSave": true,
   "cSpell.words": [
     "Aidan",
     "Ataya",
+    "Avenir",
     "browserslist",
     "Kamal",
     "Kirill",
@@ -18,5 +17,5 @@
     "TLDR",
     "VUEJS",
     "Zhou"
-  ],
+  ]
 }

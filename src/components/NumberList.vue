@@ -1,44 +1,40 @@
 <template>
-    <div class="ListClass">
-        <div v-for="item in FullNameList" :key="item"> {{ item }} </div>
-    </div>
+  <div class="ListClass">
+    <div v-for="item in FullNameList" :key="item">{{ item }}</div>
+  </div>
 </template>
 
 <script>
 export default {
-  name: "NumberList",
+  name: 'NumberList',
 
   props: {
     msg: String,
   },
 
-    data() {
-        return {
-            listValuesTemp : [
-            "Wow",
-            "LOL",
-            "awesome",
-            "great" ],
-            UserList : [
-                {firstName: "John", lastName: "Walker"},
-                {firstName: "Blake", lastName: "Breaker"}
-            ]
-        }
+  data() {
+    return {
+      listValuesTemp: ['Wow', 'LOL', 'awesome', 'great'],
+      UserList: [
+        { firstName: 'John', lastName: 'Walker' },
+        { firstName: 'Blake', lastName: 'Breaker' },
+      ],
+    }
+  },
+
+  computed: {
+    ListValues() {
+      return this.listValuesTemp.map((value) => {
+        return value + '123'
+      })
     },
 
-    computed: {
-        ListValues() {
-            return this.listValuesTemp.map(value => {
-                return value + "123"
-            })
-        },
-
-        FullNameList() {
-            return this.UserList.map(user => {
-                return user.firstName + " " + user.lastName
-            })
-        }
-    }
+    FullNameList() {
+      return this.UserList.map((user) => {
+        return user.firstName + ' ' + user.lastName
+      })
+    },
+  },
 }
 </script>
 
@@ -60,6 +56,6 @@ a {
 }
 
 .ListClass {
-    margin-top: 15px;
+  margin-top: 15px;
 }
 </style>
