@@ -1,42 +1,41 @@
 'use strict'
 
-import{app, protocol, BrowserWindow} from 'electron'
-import{createProtocol} from 'vue-cli-plugin-electron-builder/lib'
-import installExtension, {VUEJS_DEVTOOLS} from 'electron-devtools-installer'
+import { app, protocol, BrowserWindow } from 'electron'
+import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
-const path = require('path');
-const {ipcMain} = require('electron');
-const fs = require('fs');
+const path = require('path')
+const { ipcMain } = require('electron')
+const fs = require('fs')
 
 // Scheme must be registered before the app is ready
-protocol.registerSchemesAsPrivileged(
-    [ {scheme : 'app', privileges : {secure : true, standard : true}} ])
+protocol.registerSchemesAsPrivileged([
+  { scheme: 'app', privileges: { secure: true, standard: true } },
+])
 
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
-    width : 800,
-    height : 600,
-    webPreferences : {
-
+    width: 800,
+    height: 600,
+    webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See
       // nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration
       // for more info
-      nodeIntegration : process.env.ELECTRON_NODE_INTEGRATION,
-      contextIsolation : !process.env.ELECTRON_NODE_INTEGRATION,
-      enableRemoteModule : false,
+      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
+      contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      enableRemoteModule: false,
       // __static is set by webpack and will point to the public directory
-      preload : path.resolve(__static, 'preload.js')
-    }
+      preload: path.resolve(__static, 'preload.js'),
+    },
   })
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
     // Load the url of the dev server if in development mode
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
     if (!process.env.IS_TEST) win.webContents.openDevTools()
-  }
-  else {
+  } else {
     createProtocol('app')
     // Load the index.html when not in development
     win.loadURL('app://./index.html')
@@ -55,8 +54,7 @@ app.on('window-all-closed', () => {
 app.on('activate', () => {
   // On macOS it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  if (BrowserWindow.getAllWindows().length === 0)
-    createWindow()
+  if (BrowserWindow.getAllWindows().length === 0) createWindow()
 })
 
 // This method will be called when Electron has finished
@@ -75,9 +73,9 @@ app.on('ready', async () => {
 })
 
 ipcMain.on('READ_FILE', (event, payload) => {
-  const content = fs.readFileSync(payload.path);
-  event.reply('READ_FILE', {content});
-});
+  const content = fs.readFileSync(payload.path)
+  event.reply('READ_FILE', { content })
+})
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
@@ -88,6 +86,8 @@ if (isDevelopment) {
       }
     })
   } else {
-    process.on('SIGTERM', () => {app.quit()})
+    process.on('SIGTERM', () => {
+      app.quit()
+    })
   }
 }
