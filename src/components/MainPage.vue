@@ -1,32 +1,108 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
+  <div class="mainPage">
+    <div class="userInputCapture">
+      <TextField
+        class="TextField"
+        placeHolder="Patient's first name"
+        @textUpdate="updateFirstName"
+      />
+      <TextField
+        class="TextField"
+        placeHolder="Patient's last name"
+        @textUpdate="updateLastName"
+      />
+      <div class="button" @click="readFile(path, fileName)">Capture Data</div>
+    </div>
   </div>
 </template>
 
 <script>
+import TextField from "./TextField.vue";
+
 export default {
-  name: "HelloWorld",
-  props: {
-    msg: String,
+  name: "App",
+  components: {
+    TextField,
+  },
+
+  data() {
+    return {
+      firstName: "",
+      lastName: "",
+      path: "emptyFile.txt",
+      logo: "./assets/HalcyonLogo.jpg",
+    };
+  },
+
+  mounted() {
+    // handle reply from the backend
+    //This is remounted every single time mainPage re-renders.
+    //This acts as a subscription, so you can accidentally attach multiple listeners if page re-renders.
+    window.ipc.on("READ_FILE", (payload) => {
+      console.log(payload.content);
+    });
+  },
+
+  computed: {
+    fileName() {
+      return this.firstName + this.lastName;
+    },
+  },
+
+  methods: {
+    updateFirstName(value) {
+      this.firstName = value;
+    },
+
+    updateLastName(value) {
+      this.lastName = value;
+    },
+
+    readFile(path, fileName) {
+      const payload = { path, fileName };
+      window.ipc.send("READ_FILE", payload);
+    },
   },
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+<style>
+.mainPage {
+  text-align: center;
+  color: #2c3e50;
+  margin-top: 60px;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+.textField {
+  margin-top: 10px;
+  margin-bottom: 15px;
+  width: 180px;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.button {
+  background-color: #38b6ff;
+  color: white;
+  width: 130px;
+  padding: 4px;
+  margin-top: 8px;
+  user-select: none;
+  height: 22px;
+  text-align: center;
+  font-size: 18px;
 }
-a {
-  color: #42b983;
+
+.userInputCapture {
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
+.button:hover {
+  cursor: pointer;
+}
+
+.button:active {
+  background-color: #38a0ff;
 }
 </style>
