@@ -73,7 +73,7 @@ app.on('ready', async () => {
 })
 
 ipcMain.on('CAPTURE_DATA', async (event, payload) => {
-  const firmataClient = require('./firmata_client.js')
+  const firmataClient = require('./firmataClient.js')
   let message = ''
   try {
     message = await firmataClient.captureData(payload)
