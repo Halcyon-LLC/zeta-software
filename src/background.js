@@ -72,9 +72,16 @@ app.on('ready', async () => {
   createWindow()
 })
 
-ipcMain.on('CAPTURE_DATA', (event, payload) => {
-  const content = fs.readFileSync(payload.path)
-  event.reply('CAPTURE_DATA', { content })
+ipcMain.on('CAPTURE_DATA', async (event, payload) => {
+  const firmataClient = require('./firmata_client.js')
+  let message = ''
+  try {
+    message = await firmataClient.captureData(payload)
+  } catch (err) {
+    // TODO: alert('Data capture failed')
+    message = err
+  }
+  event.reply('CAPTURE_DATA', { content: message })
 })
 
 // Exit cleanly on request from parent process in development mode.
