@@ -72,9 +72,9 @@ app.on('ready', async () => {
   createWindow()
 })
 
-ipcMain.on('READ_FILE', (event, payload) => {
+ipcMain.on('CAPTURE_DATA', (event, payload) => {
   const content = fs.readFileSync(payload.path)
-  event.reply('READ_FILE', { content })
+  event.reply('CAPTURE_DATA', { content })
 })
 
 // Exit cleanly on request from parent process in development mode.
