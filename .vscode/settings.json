@@ -21,7 +21,9 @@
     "Zhou"
   ],
   "eslint.useESLintClass": false,
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
   "python.testing.pytestArgs": ["tests"],
   "python.testing.unittestEnabled": false,
   "python.testing.pytestEnabled": true,
@@ -35,5 +37,6 @@
   "python.formatting.yapfArgs": [
     "--style",
     "{based_on_style: pep8, column_limit: 120}"
-  ]
+  ],
+  "python.formatting.yapfPath": "./.venv/bin/yapf"
 }
