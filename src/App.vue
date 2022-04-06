@@ -24,7 +24,7 @@ export default {
 
   mounted() {
     // handle reply from the backend
-    window.ipc.on('READ_FILE', (payload) => {
+    window.ipc.on('CAPTURE_DATA', (payload) => {
       console.log(payload.content)
     })
   },
@@ -45,7 +45,7 @@ export default {
       console.log('Hey')
       // ask backend to read file
       const payload = { path }
-      window.ipc.send('READ_FILE', payload)
+      window.ipc.send('CAPTURE_DATA', payload)
     },
   },
 }
