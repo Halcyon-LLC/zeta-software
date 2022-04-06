@@ -12,6 +12,7 @@
   "main": "background.js",
   "dependencies": {
     "core-js": "^3.8.3",
+    "python-shell": "^3.0.1",
     "vue": "^2.6.14"
   },
   "devDependencies": {
