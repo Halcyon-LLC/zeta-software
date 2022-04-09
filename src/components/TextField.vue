@@ -43,3 +43,4 @@ export default {
   font-size: 18px;
   border-bottom: 1px solid;
   border-bottom-style: solid;
+}
