@@ -8,6 +8,10 @@
     "visualstudioexptteam.vscodeintellicode",
     "streetsidesoftware.code-spell-checker",
     "octref.vetur",
-    "dbaeumer.vscode-eslint"
+    "dbaeumer.vscode-eslint",
+    "njpwerner.autodocstring",
+    "ms-python.vscode-pylance",
+    "kevinrose.vsc-python-indent",
+    "littlefoxteam.vscode-python-test-adapter"
   ]
 }
