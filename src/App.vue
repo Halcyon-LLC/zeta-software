@@ -9,7 +9,7 @@
 import MainPage from "./components/MainPage.vue";
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
     MainPage,
   },
