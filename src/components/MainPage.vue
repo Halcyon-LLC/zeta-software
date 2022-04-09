@@ -7,11 +7,17 @@
         @textUpdate="updateFirstName"
       />
       <TextField
-        class="TextField"
         placeHolder="Patient's last name"
         @textUpdate="updateLastName"
       />
-      <div class="button" @click="readFile(path, fileName)">Capture Data</div>
+       <input
+        class="nonEditableTextField"
+        v-model="selectedPath"
+        placeholder="Data download location: "
+        readonly
+      />
+      <div class="button" @click="selectDownloadDirectory()">Choose File Directory</div>
+      <div class="button" @click="readFile(selectedPath, fileName)">Capture Data</div>
     </div>
   </div>
 </template>
@@ -29,6 +35,7 @@ export default {
     return {
       firstName: "",
       lastName: "",
+      selectedPath: "",
       path: "emptyFile.txt",
       logo: "./assets/HalcyonLogo.jpg",
     };
@@ -41,11 +48,16 @@ export default {
     window.ipc.on("CAPTURE_DATA", (payload) => {
       console.log(payload.content);
     });
+
+    window.ipc.on("GET_FILE_LOCATION", (payload) => {
+        console.log(payload.content)
+        this.selectedPath = payload.content
+    });
   },
 
   computed: {
     fileName() {
-      return this.firstName + this.lastName;
+      return this.firstName || this.lastName ? this.firstName + this.lastName : ''
     },
   },
 
@@ -62,6 +74,10 @@ export default {
       const payload = { path, fileName };
       window.ipc.send("CAPTURE_DATA", payload);
     },
+
+    selectDownloadDirectory() {
+      window.ipc.send("GET_FILE_LOCATION", undefined);
+    }
   },
 }
 </script>
@@ -69,6 +85,7 @@ export default {
 <style>
 .mainPage {
   text-align: center;
+  margin: auto;
   color: #2c3e50;
   margin-top: 60px;
 }
@@ -76,13 +93,25 @@ export default {
 .textField {
   margin-top: 10px;
   margin-bottom: 15px;
-  width: 180px;
+}
+
+.nonEditableTextField {
+    border-width: 0px;
+    border: none;
+    font-size: 18px;
+    margin-top: 25px;
+    overflow: hidden;
+    -o-text-overflow: ellipsis;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+    border-bottom: 1px solid;
+    border-bottom-style: solid;
+    outline: none;
 }
 
 .button {
   background-color: #38b6ff;
   color: white;
-  width: 130px;
   padding: 4px;
   margin-top: 8px;
   user-select: none;
@@ -92,8 +121,10 @@ export default {
 }
 
 .userInputCapture {
-  margin: auto;
+  justify-content: center;
   display: flex;
+  width: 250px;
+  text-align: center;
   flex-direction: column;
   margin-left: 20px;
 }
