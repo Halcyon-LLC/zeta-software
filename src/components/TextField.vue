@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: 'TextField',
+  name: "TextField",
 
   props: {
     placeHolder: String,
@@ -38,9 +38,12 @@ export default {
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-.textField {
-  border: none;
-  font-size: 18px;
-  border-bottom: 1px solid;
-  border-bottom-style: solid;
-}
+  .textField {
+    border-width: 0px;
+    border: none;
+    font-size: 18px;
+    border-bottom: 1px solid;
+    border-bottom-style: solid;
+    outline: none;
+  }
+</style>

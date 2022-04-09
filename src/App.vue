@@ -28,7 +28,7 @@ export default {
 }
 
 .imageLogo {
-  width: 150px;
+  width: 110px;
   justify-content: left;
   float: left;
 }
