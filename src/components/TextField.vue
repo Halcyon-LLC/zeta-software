@@ -1,56 +1,49 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <input
-      v-model="textField"
-      :placeholder="placeholderText"
-      @change="sendText(textField)"
-    />
-  </div>
+  <input
+    class="textField"
+    v-model="textField"
+    maxlength="60"
+    :placeholder="placeholderText"
+    @change="sendText(textField)"
+  />
 </template>
 
 <script>
 export default {
-  name: 'TextField',
+  name: "TextField",
 
   props: {
-    msg: String,
+    placeHolder: String,
   },
 
   data() {
     return {
-      textField: '',
-    }
+      textField: "",
+    };
   },
 
   computed: {
     placeholderText() {
-      return 'Placeholder text 1'
-    },
+      return this.placeHolder || "";
+    }
   },
 
   methods: {
     sendText(value) {
-      this.$emit('textUpdate', value)
+      this.$emit("textUpdate", value);
     },
   },
-}
+};
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+  .textField {
+    border-width: 0px;
+    border: none;
+    font-size: 18px;
+    border-bottom: 1px solid;
+    border-bottom-style: solid;
+    outline: none;
+  }
 </style>
