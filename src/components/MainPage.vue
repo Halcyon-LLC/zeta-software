@@ -36,8 +36,6 @@ export default {
       firstName: "",
       lastName: "",
       selectedPath: "",
-      path: "emptyFile.txt",
-      logo: "./assets/HalcyonLogo.jpg",
     };
   },
 
