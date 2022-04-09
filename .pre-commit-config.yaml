@@ -8,6 +8,8 @@ repos:
         name: don't commit to main branch
       - id: trailing-whitespace
       - id: end-of-file-fixer
+      - id: debug-statements
+        name: check for debug statements
       - id: check-added-large-files
         name: check for large source and project files
         exclude_types: [binary, csv]
@@ -18,12 +20,34 @@ repos:
       - id: check-yaml
       - id: check-xml
 
-  - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: 'v13.0.1'
+  - repo: local
     hooks:
-      - id: clang-format
+      - id: autoflake
+        name: autoflake
+        entry: pautoflake
+        language: system
+        types: [python]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.5.2
+    hooks:
+      - id: isort
+        types: [python]
+
+  - repo: local
+    hooks:
+      - id: flake8
+        name: flake8
+        entry: pflake8
+        language: system
+        types: [python]
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.6.1
+    hooks:
+      - id: prettier
 
   - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: 'v8.12.0'
+    rev: v8.12.0
     hooks:
       - id: eslint

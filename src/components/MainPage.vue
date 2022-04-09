@@ -63,7 +63,7 @@ export default {
       window.ipc.send("READ_FILE", payload);
     },
   },
-};
+}
 </script>
 
 <style>
