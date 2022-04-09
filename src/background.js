@@ -6,7 +6,6 @@ import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
 const path = require('path')
 const { ipcMain } = require('electron')
-const fs = require('fs')
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -82,6 +81,21 @@ ipcMain.on('CAPTURE_DATA', async (event, payload) => {
     message = err
   }
   event.reply('CAPTURE_DATA', { content: message })
+})
+
+ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
+  let selectedPath = {}
+  const electron = require('electron')
+
+  const { canceled, filePaths } = await electron.dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  })
+
+  if (!canceled) {
+    selectedPath = filePaths[0]
+  }
+
+  event.reply('GET_FILE_LOCATION', { content: selectedPath })
 })
 
 // Exit cleanly on request from parent process in development mode.
