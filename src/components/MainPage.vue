@@ -38,7 +38,7 @@ export default {
     // handle reply from the backend
     //This is remounted every single time mainPage re-renders.
     //This acts as a subscription, so you can accidentally attach multiple listeners if page re-renders.
-    window.ipc.on("READ_FILE", (payload) => {
+    window.ipc.on("CAPTURE_DATA", (payload) => {
       console.log(payload.content);
     });
   },
@@ -60,7 +60,7 @@ export default {
 
     readFile(path, fileName) {
       const payload = { path, fileName };
-      window.ipc.send("READ_FILE", payload);
+      window.ipc.send("CAPTURE_DATA", payload);
     },
   },
 }
