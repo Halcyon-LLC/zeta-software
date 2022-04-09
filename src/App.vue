@@ -3,54 +3,52 @@
     <img alt="Vue logo" src="./assets/logo.png" />
     <MainPage msg="Zeta Software GUI" />
     <TextField msg="jesus" @textUpdate="updateFirstName" />
-    <NumberList/>
-    <div> {{ firstName }}</div>
-    <button @click="readFile(path)"> Button to Click</button>
-
+    <NumberList />
+    <div>{{ firstName }}</div>
+    <button @click="readFile(path)">Button to Click</button>
   </div>
 </template>
 
 <script>
-import MainPage from "./components/MainPage.vue";
-import TextField from "./components/TextField.vue";
-import NumberList from "./components/NumberList.vue";
+import MainPage from './components/MainPage.vue'
+import TextField from './components/TextField.vue'
+import NumberList from './components/NumberList.vue'
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
     MainPage,
     TextField,
     NumberList,
   },
 
-   mounted() {
+  mounted() {
     // handle reply from the backend
-    window.ipc.on('READ_FILE', (payload) => {
-      console.log(payload.content);
-    });
+    window.ipc.on('CAPTURE_DATA', (payload) => {
+      console.log(payload.content)
+    })
   },
 
   data() {
     return {
-      firstName : "",
-      path : "emptyFile.txt",
+      firstName: '',
+      path: 'emptyFile.txt',
     }
   },
 
   methods: {
     updateFirstName(value) {
-      this.firstName = value;
+      this.firstName = value
     },
 
     readFile(path) {
-      console.log("Hey")
+      console.log('Hey')
       // ask backend to read file
-      const payload = { path };
-      window.ipc.send('READ_FILE', payload);
+      const payload = { path }
+      window.ipc.send('CAPTURE_DATA', payload)
     },
-
-  }
-};
+  },
+}
 </script>
 
 <style>
