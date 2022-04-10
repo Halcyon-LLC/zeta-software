@@ -87,15 +87,16 @@ ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
   let selectedPath = {}
   const electron = require('electron')
 
-  const { canceled, filePaths } = await electron.dialog.showOpenDialog({ properties: ['openDirectory']})
+  const { canceled, filePaths } = await electron.dialog.showOpenDialog({
+    properties: ['openDirectory'],
+  })
 
-  if(!canceled) {
+  if (!canceled) {
     selectedPath = filePaths[0]
   }
 
   event.reply('GET_FILE_LOCATION', { content: selectedPath })
 })
-
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

@@ -10,7 +10,7 @@
 
 <script>
 export default {
-  name: "TextField",
+  name: 'TextField',
 
   props: {
     placeHolder: String,
@@ -18,32 +18,32 @@ export default {
 
   data() {
     return {
-      textField: "",
-    };
+      textField: '',
+    }
   },
 
   computed: {
     placeholderText() {
-      return this.placeHolder || "";
-    }
+      return this.placeHolder || ''
+    },
   },
 
   methods: {
     sendText(value) {
-      this.$emit("textUpdate", value);
+      this.$emit('textUpdate', value)
     },
   },
-};
+}
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped>
-  .textField {
-    border-width: 0px;
-    border: none;
-    font-size: 18px;
-    border-bottom: 1px solid;
-    border-bottom-style: solid;
-    outline: none;
-  }
+.textField {
+  border-width: 0px;
+  border: none;
+  font-size: 18px;
+  border-bottom: 1px solid;
+  border-bottom-style: solid;
+  outline: none;
+}
 </style>
