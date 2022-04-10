@@ -2,11 +2,16 @@ function captureData(payload) {
   return new Promise((resolve, reject) => {
     const { PythonShell } = require('python-shell')
 
+    let pythonPath =
+      process.platform !== 'win32'
+        ? '.venv/bin/python3'
+        : '.venv/Scripts/python.exe'
+
     let destination = getDestination(payload)
 
     let options = {
       mode: 'text',
-      pythonPath: '.venv/bin/python3',
+      pythonPath: pythonPath,
       pythonOptions: ['-u'], // get print results in real-time
       scriptPath: './scripts/',
       args: ['-d', destination],
