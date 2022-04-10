@@ -60,9 +60,10 @@ class FSRSampler:
             self.board.analog[id].enable_reporting()
 
         while not np.all(self.data_size_counter >= self.sample_size):
-            print(self.data_size_counter)
-            sleep(0.1)
+            print(f'progress: {self.data_size_counter.sum() / (self.sample_size * self.num_sensors) * 100 : .1f}%')
+            sleep(0.05)
 
+        print('progress: 100%')
         return self._convert_to_pressure(self.readings / self.sample_size)
 
 
