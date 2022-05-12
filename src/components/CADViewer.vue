@@ -66,6 +66,11 @@ export default {
         this.animate()
     },
 
+
+    beforeUnmount() {
+        this.controls.removeEventListener("change", this.render)
+    },
+
     computed: {
         rotate() {
             return this.speed === '' ? 0 : this.speed;
@@ -81,7 +86,6 @@ export default {
         },
 
         render() {
-            this.controls.target.copy(this.cube.position)
             this.renderer.render(this.scene, this.camera)
         }
     },
