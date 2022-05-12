@@ -50,17 +50,19 @@ export default {
         this.light.position.set(0, 0, 5)
         this.camera.position.z = 5
         this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
-        this.controls = new TrackballControls(this.camera)
-        this.controls.rotateSpeed = 1.0
-        this.controls.zoomSpeed = 5
-        this.controls.panSpeed = 0.8
-        this.controls.noZoom = false
-        this.controls.noPan = false
-        this.controls.staticMoving = true
-        this.controls.dynamicDampingFactor = 0.3
+      
     },
     mounted() {
         this.$refs.canvas.appendChild(this.renderer.domElement)
+        this.controls = new TrackballControls(this.camera, this.renderer.domElement)
+        this.controls.addEventListener("change", this.render)
+        this.controls.rotateSpeed = 1.0
+        this.controls.zoomSpeed = 5
+        this.controls.panSpeed = 0.8
+        this.controls.noZoom = true
+        this.controls.noPan = false
+        this.controls.staticMoving = true
+        this.controls.dynamicDampingFactor = 0.3
         this.animate()
     },
 
@@ -76,6 +78,11 @@ export default {
             this.renderer.render(this.scene, this.camera)
             this.cube.rotation.y += this.speed
             this.controls.update()
+        },
+
+        render() {
+            this.controls.target.copy(this.cube.position)
+            this.renderer.render(this.scene, this.camera)
         }
     },
 }
