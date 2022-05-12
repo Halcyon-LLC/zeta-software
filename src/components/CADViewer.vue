@@ -13,7 +13,7 @@ export default {
         const scene = new THREE.Scene()
         const camera = new THREE.PerspectiveCamera(
             75,
-            150 / 500,
+            150 / 500, // don't hardcode this
             0.1,
             500
         )
@@ -66,11 +66,7 @@ export default {
 
     computed: {
         rotate() {
-            if (this.speed === '') {
-                return 0
-            } else {
-                return this.speed
-            }
+            return this.speed === '' ? 0 : this.speed;
         }
     },
 
