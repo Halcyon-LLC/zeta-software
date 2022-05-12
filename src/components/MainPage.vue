@@ -1,5 +1,8 @@
 <template>
   <div class="mainPage">
+    <div class="CADContainer">
+      <CADViewer/>
+    </div>
     <div class="userInputCapture">
       <TextField
         class="TextField"
@@ -24,11 +27,13 @@
 
 <script>
 import TextField from "./TextField.vue";
+import CADViewer from "./CADViewer.vue";
 
 export default {
   name: "App",
   components: {
     TextField,
+    CADViewer,
   },
 
   data() {
@@ -83,9 +88,20 @@ export default {
 <style>
 .mainPage {
   text-align: center;
+  display: flex;
+  flex-direction: row;
   margin: auto;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.CADContainer {
+    justify-content: center;
+    display: flex;
+    width: 250px;
+    text-align: center;
+    flex-direction: column;
+    margin-left: 20px;
 }
 
 .textField {
