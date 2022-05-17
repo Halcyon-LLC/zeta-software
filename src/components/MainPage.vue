@@ -108,7 +108,7 @@ export default {
 .CADContainer {
     justify-content: center;
     display: flex;
-    width: 250px;
+    width: 600px;
     text-align: center;
     flex-direction: column;
     margin-left: 20px;
