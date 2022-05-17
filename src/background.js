@@ -84,7 +84,7 @@ ipcMain.on('CAPTURE_DATA', async (event, payload) => {
 })
 
 ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
-  let selectedPath = {}
+  let selectedPath = ''
   const electron = require('electron')
 
   const { canceled, filePaths } = await electron.dialog.showOpenDialog({ properties: ['openDirectory']})
@@ -96,6 +96,23 @@ ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
   event.reply('GET_FILE_LOCATION', { content: selectedPath })
 })
 
+
+ipcMain.on('OPEN_SELECTED_FILE', async (event, payload) => {
+  let selectedPath = ''
+  const electron = require('electron')
+  const fs = require('fs')
+
+  const { canceled, filePaths } = await electron.dialog.showOpenDialog({ properties: ['openFile'] })
+
+  if(!canceled) {
+    selectedPath = filePaths[0]
+  }
+
+  if(!selectedPath) return
+
+  const fileContent = fs.readFileSync(selectedPath).toString()
+  event.reply('OPEN_SELECTED_FILE', { content: fileContent })
+})
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {

@@ -5,9 +5,14 @@
 <script>
 import * as THREE from 'three'
 import TrackballControls from 'three-trackballcontrols'
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 
 export default {
     name: 'CADViewer',
+
+    props: {
+        CADFile: String,
+    },
 
     data: function() {
         const scene = new THREE.Scene()
@@ -20,13 +25,20 @@ export default {
 
         const renderer = new THREE.WebGLRenderer({ antialias: true })
         const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
-        const geometry = new THREE.BoxGeometry(1, 1, 1)
-        const material = new THREE.MeshStandardMaterial({
-            side: THREE.FrontSide,
-            color: 'hsl(0, 100%, 50%)',
-            wireframe: false
-        })
-        const cube = new THREE.Mesh(geometry, material)
+        const cube = new THREE.Group();
+        // if(this.CADFile) {
+        //     const loader = new OBJLoader()
+        //     const result = loader.parse( this.CADFile );
+          
+        //     console.log(result)
+        // }
+
+        // const geometry = new THREE.BoxGeometry(1, 1, 1)
+        // const material = new THREE.MeshStandardMaterial({
+        //     side: THREE.FrontSide,
+        //     color: 'hsl(0, 100%, 50%)',
+        //     wireframe: false
+        // })
         const axes = new THREE.AxesHelper(5)
 
         return {
@@ -41,10 +53,23 @@ export default {
         }
     },
 
+    watch: {
+        CADFile() {
+            console.log(this.CADFile )
+            const loader = new OBJLoader()
+            const result = loader.parse( this.CADFile );
+            this.cube = result //add the 3Dobject to the scene
+            this.scene.add(this.cube)
+            console.log("Two")
+             console.log(this.scene)
+            this.animate()
+        }
+    },
+
     created() {
         this.scene.add(this.camera)
         this.scene.add(this.light)
-        this.scene.add(this.cube)
+       // this.scene.add(this.cube)
         this.scene.add(this.axes)
         this.renderer.setSize(150, 500)
         this.light.position.set(0, 0, 5)
@@ -52,6 +77,7 @@ export default {
         this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
       
     },
+
     mounted() {
         this.$refs.canvas.appendChild(this.renderer.domElement)
         this.controls = new TrackballControls(this.camera, this.renderer.domElement)
@@ -81,12 +107,23 @@ export default {
         animate() {
             requestAnimationFrame(this.animate)
             this.renderer.render(this.scene, this.camera)
-            this.cube.rotation.y += this.speed
+            //this.cube.rotation.y += this.speed
             this.controls.update()
         },
 
         render() {
             this.renderer.render(this.scene, this.camera)
+        },
+
+        createScene() {
+            this.scene.add(this.camera)
+            this.scene.add(this.light)
+            this.scene.add(this.cube)
+            this.scene.add(this.axes)
+            this.renderer.setSize(150, 500)
+            this.light.position.set(0, 0, 5)
+            this.camera.position.z = 5
+            this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
         }
     },
 }

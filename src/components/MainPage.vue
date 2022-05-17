@@ -1,7 +1,8 @@
 <template>
   <div class="mainPage">
     <div class="CADContainer">
-      <CADViewer/>
+      <CADViewer :CADFile="selectedCADFile"/>
+      <div class="button" @click="openCADFile()">Select CAD</div>
     </div>
     <div class="userInputCapture">
       <TextField
@@ -41,6 +42,7 @@ export default {
       firstName: "",
       lastName: "",
       selectedPath: "",
+      selectedCADFile: "",
     };
   },
 
@@ -55,6 +57,10 @@ export default {
     window.ipc.on("GET_FILE_LOCATION", (payload) => {
         console.log(payload.content)
         this.selectedPath = payload.content
+    });
+
+     window.ipc.on("OPEN_SELECTED_FILE", (payload) => {
+        this.selectedCADFile = payload.content
     });
   },
 
@@ -80,6 +86,10 @@ export default {
 
     selectDownloadDirectory() {
       window.ipc.send("GET_FILE_LOCATION", undefined);
+    },
+
+    openCADFile() {
+      window.ipc.send("OPEN_SELECTED_FILE", undefined);
     }
   },
 }
