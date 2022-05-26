@@ -1,10 +1,11 @@
 <template>
-  <div ref="canvas" />
+  <canvas id="canvas" refs="canvas" />
 </template>
 
 <script>
 import * as THREE from 'three'
 import TrackballControls from 'three-trackballcontrols'
+import simpleheat from 'simpleheat'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 
 export default {
@@ -106,19 +107,12 @@ export default {
 
   // },
 
-  // mounted() {
-  //     this.$refs.canvas.appendChild(this.renderer.domElement)
-  //     this.controls = new TrackballControls(this.camera, this.renderer.domElement)
-  //     this.controls.addEventListener("change", this.render)
-  //     this.controls.rotateSpeed = 1.0
-  //     this.controls.zoomSpeed = 5
-  //     this.controls.panSpeed = 0.8
-  //     this.controls.noZoom = true
-  //     this.controls.noPan = false
-  //     this.controls.staticMoving = true
-  //     this.controls.dynamicDampingFactor = 0.3
-  //     this.animate()
-  // },
+  mounted() {
+    var heat = simpleheat('canvas')
+    heat.max(2000)
+    console.log(heat)
+    console.log(this.$refs)
+  },
 
   beforeUnmount() {
     this.controls.removeEventListener('change', this.render)
@@ -167,6 +161,12 @@ export default {
       this.controls.dynamicDampingFactor = 0.3
       this.animate()
     },
+
+    // receivedData() {
+    //     return [Math.random() * this.$refs.canvas.width(),
+    //             Math.random() * this.$refs.canvas.height(),
+    //             Math.random() * VAL];
+    // },
   },
 }
 </script>
