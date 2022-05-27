@@ -1,5 +1,5 @@
 <template>
-  <canvas id="canvas" refs="canvas" />
+  <canvas id="canvas" ref="canvas" />
 </template>
 
 <script>
@@ -55,6 +55,10 @@ export default {
       speed: 0.01,
       windowWidth: 500,
       windowHeight: 500,
+      heat: undefined,
+      texture: undefined,
+      material: undefined,
+      plane: undefined,
     }
   },
 
@@ -85,7 +89,7 @@ export default {
         this.camera.lookAt(center)
       }
 
-      // this.cube = result //add the 3Dobject to the scene
+      this.cube = result //add the 3Dobject to the scene
       console.log('Two')
       console.log(this.scene)
       this.scene.add(result)
@@ -108,10 +112,15 @@ export default {
   // },
 
   mounted() {
-    var heat = simpleheat('canvas')
-    heat.max(2000)
-    console.log(heat)
-    console.log(this.$refs)
+    this.heat = simpleheat('canvas')
+    this.texture = this.genTexture()
+    this.material = this.genMaterial()
+    this.plane = this.clonePlane()
+    this.heat.max(2000)
+    console.log(this.heat)
+
+    this.createScene()
+    this.startAnimation()
   },
 
   beforeUnmount() {
@@ -127,6 +136,12 @@ export default {
   methods: {
     animate() {
       requestAnimationFrame(this.animate)
+
+      this.heat.add(this.receivedData())
+
+      this.heat.draw()
+      // this.texture.needsUpdate = true;
+
       this.renderer.render(this.scene, this.camera)
       this.controls.update()
     },
@@ -139,6 +154,7 @@ export default {
       this.scene.add(this.camera)
       this.scene.add(this.light)
       this.scene.add(this.axes)
+      this.scene.add(this.plane)
       this.renderer.setSize(500, 500)
       this.light.position.set(0, 0, 5)
       // this.camera.position.z = 5
@@ -146,6 +162,8 @@ export default {
     },
 
     startAnimation() {
+      console.log(this.$refs.canvas)
+
       this.$refs.canvas.appendChild(this.renderer.domElement)
       this.controls = new TrackballControls(
         this.camera,
@@ -162,11 +180,42 @@ export default {
       this.animate()
     },
 
-    // receivedData() {
-    //     return [Math.random() * this.$refs.canvas.width(),
-    //             Math.random() * this.$refs.canvas.height(),
-    //             Math.random() * VAL];
-    // },
+    receivedData() {
+      // return [Math.random() * this.$refs.canvas.width(),
+      //         Math.random() * this.$refs.canvas.height(),
+      //         Math.random() * VAL];
+      return [Math.random() * 600, Math.random() * 300, Math.random() * 1500]
+    },
+
+    genTexture() {
+      var texture = new THREE.Texture('canvas')
+      return texture
+    },
+
+    // generates a material
+    genMaterial() {
+      var material = new THREE.MeshBasicMaterial({
+        map: this.texture, // Uses the texture created in genTexture
+        side: THREE.DoubleSide,
+      })
+      material.transparent = true
+
+      // Believe this is something for Autodesk
+      // register the material under the name "heatmap"
+      // _viewer.impl.matman().addMaterial("heatmap", material, true);
+
+      return material
+    },
+    /* Rendering the heatmap in the Viewer */
+
+    clonePlane() {
+      // To use native three.js plane, use the following mesh constructor
+      let geom = new THREE.PlaneGeometry(100, 100)
+      var plane = new THREE.Mesh(geom, this.material)
+      plane.position.set(0, 0, 0)
+
+      return plane
+    },
   },
 }
 </script>
