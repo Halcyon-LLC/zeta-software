@@ -1,11 +1,11 @@
 <template>
-  <canvas id="canvas" ref="canvas" />
+  <div ref="canvas" />
 </template>
 
 <script>
 import * as THREE from 'three'
 import TrackballControls from 'three-trackballcontrols'
-import simpleheat from 'simpleheat'
+import ProjectedMaterial from 'three-projected-material'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 
 export default {
@@ -17,13 +17,13 @@ export default {
 
   data: function () {
     const scene = new THREE.Scene()
-    const camera = new THREE.PerspectiveCamera(
-      75,
-      // this.windowWidth / this.windowHeight, // don't hardcode this 150/ 500
-      500 / 500, // don't hardcode this 150/ 500
-      0.01,
-      500
-    )
+    // const camera = new THREE.PerspectiveCamera(
+    //   75,
+    //   // this.windowWidth / this.windowHeight, // don't hardcode this 150/ 500
+    //   500 / 500, // don't hardcode this 150/ 500
+    //   0.01,
+    //   500
+    // )
 
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
@@ -46,7 +46,7 @@ export default {
 
     return {
       scene: scene,
-      camera: camera,
+      camera: undefined,
       controls: [],
       renderer: renderer,
       light: light,
@@ -55,25 +55,45 @@ export default {
       speed: 0.01,
       windowWidth: 500,
       windowHeight: 500,
-      heat: undefined,
-      texture: undefined,
-      material: undefined,
-      plane: undefined,
+      CADMesh: undefined,
+      CADMaterial: undefined,
     }
   },
 
   watch: {
     CADFile() {
-      console.log(this.CADFile)
+      const camera = new THREE.PerspectiveCamera(
+        75,
+        // this.windowWidth / this.windowHeight, // don't hardcode this 150/ 500
+        500 / 500, // don't hardcode this 150/ 500
+        0.01,
+        500
+      )
+      this.camera = camera
       const loader = new OBJLoader()
       const result = loader.parse(this.CADFile)
+      console.log(result.children[0].geometry)
+
+      const texture = new THREE.TextureLoader().load(
+        require('../assets/water.jpg')
+      )
+      const material = new ProjectedMaterial({
+        camera, // the camera that acts as a projector
+        texture, // the texture being projected
+        textureScale: 0.8, // scale down the texture a bit
+        textureOffset: new THREE.Vector2(0.1, 0.1), // you can translate the texture if you want
+        cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
+        color: '#bbb', // the color of the object if it's not projected on
+        roughness: 0.3, // you can pass any other option that belongs to MeshPhysicalMaterial
+      })
+      const CADMesh = new THREE.Mesh(result.children[0].geometry, material)
+      this.CADMesh = CADMesh
+      this.CADMaterial = material
 
       let box = new THREE.Box3().setFromObject(result)
       let sphere = new THREE.Sphere()
       box.getBoundingSphere(sphere)
       let center = sphere.center
-      console.log(center)
-      console.log(sphere.radius)
 
       const fov = this.camera.fov * (Math.PI / 180)
       let cameraZ = Math.abs((sphere.radius / 4) * Math.tan(fov * 2))
@@ -89,10 +109,8 @@ export default {
         this.camera.lookAt(center)
       }
 
-      this.cube = result //add the 3Dobject to the scene
-      console.log('Two')
-      console.log(this.scene)
-      this.scene.add(result)
+      // this.cube = result //add the 3Dobject to the scene
+      // console.log(this.scene)
       result.position.set(0, 0, 0)
       result.rotation.y += this.speed
       this.createScene()
@@ -111,17 +129,19 @@ export default {
 
   // },
 
-  mounted() {
-    this.heat = simpleheat('canvas')
-    this.texture = this.genTexture()
-    this.material = this.genMaterial()
-    this.plane = this.clonePlane()
-    this.heat.max(2000)
-    console.log(this.heat)
-
-    this.createScene()
-    this.startAnimation()
-  },
+  // mounted() {
+  //     this.$refs.canvas.appendChild(this.renderer.domElement)
+  //     this.controls = new TrackballControls(this.camera, this.renderer.domElement)
+  //     this.controls.addEventListener("change", this.render)
+  //     this.controls.rotateSpeed = 1.0
+  //     this.controls.zoomSpeed = 5
+  //     this.controls.panSpeed = 0.8
+  //     this.controls.noZoom = true
+  //     this.controls.noPan = false
+  //     this.controls.staticMoving = true
+  //     this.controls.dynamicDampingFactor = 0.3
+  //     this.animate()
+  // },
 
   beforeUnmount() {
     this.controls.removeEventListener('change', this.render)
@@ -136,12 +156,6 @@ export default {
   methods: {
     animate() {
       requestAnimationFrame(this.animate)
-
-      this.heat.add(this.receivedData())
-
-      this.heat.draw()
-      // this.texture.needsUpdate = true;
-
       this.renderer.render(this.scene, this.camera)
       this.controls.update()
     },
@@ -154,7 +168,7 @@ export default {
       this.scene.add(this.camera)
       this.scene.add(this.light)
       this.scene.add(this.axes)
-      this.scene.add(this.plane)
+      this.scene.add(this.CADMesh)
       this.renderer.setSize(500, 500)
       this.light.position.set(0, 0, 5)
       // this.camera.position.z = 5
@@ -162,9 +176,9 @@ export default {
     },
 
     startAnimation() {
-      console.log(this.$refs.canvas)
-
       this.$refs.canvas.appendChild(this.renderer.domElement)
+      this.CADMaterial.project(this.CADMesh)
+
       this.controls = new TrackballControls(
         this.camera,
         this.renderer.domElement
@@ -178,43 +192,6 @@ export default {
       this.controls.staticMoving = true
       this.controls.dynamicDampingFactor = 0.3
       this.animate()
-    },
-
-    receivedData() {
-      // return [Math.random() * this.$refs.canvas.width(),
-      //         Math.random() * this.$refs.canvas.height(),
-      //         Math.random() * VAL];
-      return [Math.random() * 600, Math.random() * 300, Math.random() * 1500]
-    },
-
-    genTexture() {
-      var texture = new THREE.Texture('canvas')
-      return texture
-    },
-
-    // generates a material
-    genMaterial() {
-      var material = new THREE.MeshBasicMaterial({
-        map: this.texture, // Uses the texture created in genTexture
-        side: THREE.DoubleSide,
-      })
-      material.transparent = true
-
-      // Believe this is something for Autodesk
-      // register the material under the name "heatmap"
-      // _viewer.impl.matman().addMaterial("heatmap", material, true);
-
-      return material
-    },
-    /* Rendering the heatmap in the Viewer */
-
-    clonePlane() {
-      // To use native three.js plane, use the following mesh constructor
-      let geom = new THREE.PlaneGeometry(100, 100)
-      var plane = new THREE.Mesh(geom, this.material)
-      plane.position.set(0, 0, 0)
-
-      return plane
     },
   },
 }
