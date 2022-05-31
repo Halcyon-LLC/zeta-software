@@ -1,5 +1,7 @@
 <template>
-  <div ref="canvas" />
+  <div ref="canvas">
+    <canvas id="heatmap" width="200" height="200" />
+  </div>
 </template>
 
 <script>
@@ -7,6 +9,7 @@ import * as THREE from 'three'
 import TrackballControls from 'three-trackballcontrols'
 import ProjectedMaterial from 'three-projected-material'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
+import simpleheat from 'simpleheat'
 
 export default {
   name: 'CADViewer',
@@ -17,31 +20,8 @@ export default {
 
   data: function () {
     const scene = new THREE.Scene()
-    // const camera = new THREE.PerspectiveCamera(
-    //   75,
-    //   // this.windowWidth / this.windowHeight, // don't hardcode this 150/ 500
-    //   500 / 500, // don't hardcode this 150/ 500
-    //   0.01,
-    //   500
-    // )
-
     const renderer = new THREE.WebGLRenderer({ antialias: true })
     const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
-    // const cube = new THREE.Group();
-    // if(this.CADFile) {
-    //     const loader = new OBJLoader()
-    //     const result = loader.parse( this.CADFile );
-
-    //     console.log(result)
-    // }
-
-    const geometry = new THREE.BoxGeometry(1, 1, 1)
-    const material = new THREE.MeshStandardMaterial({
-      side: THREE.FrontSide,
-      color: 'hsl(0, 100%, 50%)',
-      wireframe: false,
-    })
-    const cube = new THREE.Mesh(geometry, material)
     const axes = new THREE.AxesHelper(5)
 
     return {
@@ -50,7 +30,6 @@ export default {
       controls: [],
       renderer: renderer,
       light: light,
-      cube: cube,
       axes: axes,
       speed: 0.01,
       windowWidth: 500,
@@ -70,13 +49,14 @@ export default {
         500
       )
       this.camera = camera
+
+      // Receiving the CADFile from backend and loading it into a Group object
       const loader = new OBJLoader()
       const result = loader.parse(this.CADFile)
-      console.log(result.children[0].geometry)
 
-      const texture = new THREE.TextureLoader().load(
-        require('../assets/water.jpg')
-      )
+      this.initHeatMap()
+      var texture = new THREE.CanvasTexture(document.getElementById('heatmap'))
+
       const material = new ProjectedMaterial({
         camera, // the camera that acts as a projector
         texture, // the texture being projected
@@ -90,58 +70,19 @@ export default {
       this.CADMesh = CADMesh
       this.CADMaterial = material
 
+      // Centering the CAD model in the scene
       let box = new THREE.Box3().setFromObject(result)
       let sphere = new THREE.Sphere()
       box.getBoundingSphere(sphere)
-      let center = sphere.center
-
       const fov = this.camera.fov * (Math.PI / 180)
       let cameraZ = Math.abs((sphere.radius / 4) * Math.tan(fov * 2))
       cameraZ *= 7 // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
 
-      this.camera.updateProjectionMatrix()
-
-      if (this.controls) {
-        // set camera to rotate around center of loaded object
-        this.controls.target = center
-      } else {
-        this.camera.lookAt(center)
-      }
-
-      // this.cube = result //add the 3Dobject to the scene
-      // console.log(this.scene)
-      result.position.set(0, 0, 0)
-      result.rotation.y += this.speed
       this.createScene()
       this.startAnimation()
     },
   },
-
-  // created() {
-  //     this.scene.add(this.camera)
-  //     this.scene.add(this.light)
-  //     this.scene.add(this.axes)
-  //     this.renderer.setSize(150, 500)
-  //     this.light.position.set(0, 0, 5)
-  //     this.camera.position.z = 5
-  //     this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
-
-  // },
-
-  // mounted() {
-  //     this.$refs.canvas.appendChild(this.renderer.domElement)
-  //     this.controls = new TrackballControls(this.camera, this.renderer.domElement)
-  //     this.controls.addEventListener("change", this.render)
-  //     this.controls.rotateSpeed = 1.0
-  //     this.controls.zoomSpeed = 5
-  //     this.controls.panSpeed = 0.8
-  //     this.controls.noZoom = true
-  //     this.controls.noPan = false
-  //     this.controls.staticMoving = true
-  //     this.controls.dynamicDampingFactor = 0.3
-  //     this.animate()
-  // },
 
   beforeUnmount() {
     this.controls.removeEventListener('change', this.render)
@@ -164,6 +105,20 @@ export default {
       this.renderer.render(this.scene, this.camera)
     },
 
+    initHeatMap() {
+      let heat = simpleheat('heatmap')
+      heat.max(100)
+
+      for (let i = 0; i < 15; i++) {
+        heat.add([
+          Math.random() * 200,
+          Math.random() * 200,
+          Math.random() * 100,
+        ])
+      }
+      heat.draw()
+    },
+
     createScene() {
       this.scene.add(this.camera)
       this.scene.add(this.light)
@@ -171,14 +126,14 @@ export default {
       this.scene.add(this.CADMesh)
       this.renderer.setSize(500, 500)
       this.light.position.set(0, 0, 5)
-      // this.camera.position.z = 5
+      this.CADMesh.position.set(0, 0, 0)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
     startAnimation() {
       this.$refs.canvas.appendChild(this.renderer.domElement)
+      // Projecting the material onto the CAD mesh
       this.CADMaterial.project(this.CADMesh)
-
       this.controls = new TrackballControls(
         this.camera,
         this.renderer.domElement
