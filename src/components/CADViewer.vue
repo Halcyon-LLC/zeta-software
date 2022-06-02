@@ -54,22 +54,6 @@ export default {
       const loader = new OBJLoader()
       const result = loader.parse(this.CADFile)
 
-      this.initHeatMap()
-      var texture = new THREE.CanvasTexture(document.getElementById('heatmap'))
-
-      const material = new ProjectedMaterial({
-        camera, // the camera that acts as a projector
-        texture, // the texture being projected
-        textureScale: 0.8, // scale down the texture a bit
-        textureOffset: new THREE.Vector2(0.1, 0.1), // you can translate the texture if you want
-        cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
-        color: '#bbb', // the color of the object if it's not projected on
-        roughness: 0.3, // you can pass any other option that belongs to MeshPhysicalMaterial
-      })
-      const CADMesh = new THREE.Mesh(result.children[0].geometry, material)
-      this.CADMesh = CADMesh
-      this.CADMaterial = material
-
       // Centering the CAD model in the scene
       let box = new THREE.Box3().setFromObject(result)
       let sphere = new THREE.Sphere()
@@ -78,6 +62,23 @@ export default {
       let cameraZ = Math.abs((sphere.radius / 4) * Math.tan(fov * 2))
       cameraZ *= 7 // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
+
+      // Projecting the heatmap onto the CAD model
+      this.initHeatMap()
+      var texture = new THREE.CanvasTexture(document.getElementById('heatmap'))
+
+      const material = new ProjectedMaterial({
+        camera, // the camera that acts as a projector
+        texture, // the texture being projected
+        textureScale: 0.8, // scale down the texture a bit
+        textureOffset: new THREE.Vector2(0, 0), // you can translate the texture if you want
+        cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
+        color: '#FFF', // the color of the object if it's not projected on
+        roughness: 0.3, // you can pass any other option that belongs to MeshPhysicalMaterial
+      })
+      const CADMesh = new THREE.Mesh(result.children[0].geometry, material)
+      this.CADMesh = CADMesh
+      this.CADMaterial = material
 
       this.createScene()
       this.startAnimation()
