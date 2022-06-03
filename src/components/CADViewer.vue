@@ -1,6 +1,7 @@
 <template>
-  <div ref="canvas">
-    <canvas id="heatmap" width="200" height="200" />
+  <div>
+    <div ref="canvas"/>
+    <canvas id="heatmap" width="200" height="200" class="heatMap"/>
   </div>
 </template>
 
@@ -18,20 +19,13 @@ export default {
     CADFile: String,
   },
 
-  data: function () {
-    const scene = new THREE.Scene()
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
-    const light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
-    const axes = new THREE.AxesHelper(5)
-
+  data() {
     return {
-      scene: scene,
+      scene: undefined,
       camera: undefined,
       controls: [],
-      renderer: renderer,
-      light: light,
-      axes: axes,
-      speed: 0.01,
+      renderer: undefined,
+      light: undefined,
       windowWidth: 500,
       windowHeight: 500,
       CADMesh: undefined,
@@ -41,10 +35,13 @@ export default {
 
   watch: {
     CADFile() {
+      this.scene.clear() //remove everything before adding to scene
+      this.renderer.clear();
+
+      this.light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
       const camera = new THREE.PerspectiveCamera(
         75,
-        // this.windowWidth / this.windowHeight, // don't hardcode this 150/ 500
-        500 / 500, // don't hardcode this 150/ 500
+        this.windowWidth / this.windowHeight, //aspect ratio
         0.01,
         500
       )
@@ -85,14 +82,13 @@ export default {
     },
   },
 
-  beforeUnmount() {
-    this.controls.removeEventListener('change', this.render)
+  mounted() {
+    this.scene = new THREE.Scene()
+    this.renderer = new THREE.WebGLRenderer({ antialias: true })
   },
 
-  computed: {
-    rotate() {
-      return this.speed === '' ? 0 : this.speed
-    },
+  beforeUnmount() {
+    this.controls.removeEventListener('change', this.render)
   },
 
   methods: {
@@ -123,9 +119,8 @@ export default {
     createScene() {
       this.scene.add(this.camera)
       this.scene.add(this.light)
-      this.scene.add(this.axes)
       this.scene.add(this.CADMesh)
-      this.renderer.setSize(500, 500)
+      this.renderer.setSize(this.windowWidth, this.windowHeight)
       this.light.position.set(0, 0, 5)
       this.CADMesh.position.set(0, 0, 0)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
@@ -143,7 +138,7 @@ export default {
       this.controls.rotateSpeed = 1.0
       this.controls.zoomSpeed = 5
       this.controls.panSpeed = 0.8
-      this.controls.noZoom = false
+      this.controls.noZoom = true
       this.controls.noPan = false
       this.controls.staticMoving = true
       this.controls.dynamicDampingFactor = 0.3
@@ -153,4 +148,10 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.heatMap {
+  visibility: hidden;
+  position: absolute;
+}
+
+</style>
