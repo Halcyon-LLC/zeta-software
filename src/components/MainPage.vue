@@ -21,7 +21,9 @@
         readonly
       />
       <div class="button" @click="selectDownloadDirectory()">Choose File Directory</div>
-      <div class="button" @click="readFile(selectedPath, fileName)">Capture Data</div>
+      <div :class="isDataCaptureProcessing ? 'button disableButton' : 'button'" :disabled="isDataCaptureProcessing == true" 
+      @click="readFile(selectedPath, fileName)">Capture Data</div>
+      <dotted-loading-bar v-if="isDataCaptureProcessing" class="loadingBar"/>
     </div>
   </div>
 </template>
@@ -29,12 +31,14 @@
 <script>
 import TextField from "./TextField.vue";
 import CADViewer from "./CADViewer.vue";
+import DottedLoadingBar from "./DottedLoadingBar.vue"
 
 export default {
   name: "App",
   components: {
     TextField,
     CADViewer,
+    DottedLoadingBar,
   },
 
   data() {
@@ -43,6 +47,7 @@ export default {
       lastName: "",
       selectedPath: "",
       selectedCADFile: "",
+      isDataCaptureProcessing: false,
     };
   },
 
@@ -52,6 +57,7 @@ export default {
     //This acts as a subscription, so you can accidentally attach multiple listeners if page re-renders.
     window.ipc.on("CAPTURE_DATA", (payload) => {
       console.log(payload.content);
+      this.isDataCaptureProcessing = false //data capture is complete
     });
 
     window.ipc.on("GET_FILE_LOCATION", (payload) => {
@@ -59,7 +65,7 @@ export default {
         this.selectedPath = payload.content
     });
 
-     window.ipc.on("OPEN_SELECTED_FILE", (payload) => {
+    window.ipc.on("OPEN_SELECTED_FILE", (payload) => {
         this.selectedCADFile = payload.content
     });
   },
@@ -72,24 +78,25 @@ export default {
 
   methods: {
     updateFirstName(value) {
-      this.firstName = value;
+      this.firstName = value
     },
 
     updateLastName(value) {
-      this.lastName = value;
+      this.lastName = value
     },
 
     readFile(path, fileName) {
-      const payload = { path, fileName };
-      window.ipc.send("CAPTURE_DATA", payload);
+      const payload = { path, fileName }
+      window.ipc.send("CAPTURE_DATA", payload)
     },
 
     selectDownloadDirectory() {
-      window.ipc.send("GET_FILE_LOCATION", undefined);
+      window.ipc.send("GET_FILE_LOCATION", undefined)
     },
 
     openCADFile() {
-      window.ipc.send("OPEN_SELECTED_FILE", undefined);
+      this.isDataCaptureProcessing = true
+      window.ipc.send("OPEN_SELECTED_FILE", undefined)
     }
   },
 }
@@ -144,13 +151,9 @@ export default {
   font-size: 18px;
 }
 
-.userInputCapture {
-  justify-content: center;
-  display: flex;
-  width: 250px;
-  text-align: center;
-  flex-direction: column;
-  margin-left: 20px;
+.disableButton {
+  pointer-events: none;
+  opacity: 0.3;
 }
 
 .button:hover {
@@ -159,5 +162,19 @@ export default {
 
 .button:active {
   background-color: #38a0ff;
+}
+
+.loadingBar {
+  margin: auto;
+  margin-top: 10px;
+}
+
+.userInputCapture {
+  justify-content: center;
+  display: flex;
+  width: 250px;
+  text-align: center;
+  flex-direction: column;
+  margin-left: 20px;
 }
 </style>
