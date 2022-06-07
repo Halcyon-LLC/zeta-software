@@ -1,7 +1,7 @@
 <template>
   <div class="mainPage">
     <div class="CADContainer">
-      <CADViewer :CADFile="selectedCADFile"/>
+      <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
       <div class="button" @click="openCADFile()">Select CAD</div>
     </div>
     <div class="userInputCapture">
@@ -14,24 +14,29 @@
         placeHolder="Patient's last name"
         @textUpdate="updateLastName"
       />
-       <input
+      <input
         class="nonEditableTextField"
         v-model="selectedPath"
         placeholder="Data download location: "
         readonly
       />
-      <div class="button" @click="selectDownloadDirectory()">Choose File Directory</div>
-      <div class="button" @click="readFile(selectedPath, fileName)">Capture Data</div>
+      <div class="button" @click="selectDownloadDirectory()">
+        Choose File Directory
+      </div>
+      <div class="button" @click="readFile(selectedPath, fileName)">
+        Capture Data
+      </div>
+      <div class="button" @click="loadPressureData()">Load Pressure Data</div>
     </div>
   </div>
 </template>
 
 <script>
-import TextField from "./TextField.vue";
-import CADViewer from "./CADViewer.vue";
+import TextField from './TextField.vue'
+import CADViewer from './CADViewer.vue'
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
     TextField,
     CADViewer,
@@ -39,58 +44,69 @@ export default {
 
   data() {
     return {
-      firstName: "",
-      lastName: "",
-      selectedPath: "",
-      selectedCADFile: "",
-    };
+      firstName: '',
+      lastName: '',
+      selectedPath: '',
+      selectedCADFile: '',
+      pressureData: [],
+    }
   },
 
   mounted() {
     // handle reply from the backend
     //This is remounted every single time mainPage re-renders.
     //This acts as a subscription, so you can accidentally attach multiple listeners if page re-renders.
-    window.ipc.on("CAPTURE_DATA", (payload) => {
-      console.log(payload.content);
-    });
+    window.ipc.on('CAPTURE_DATA', (payload) => {
+      console.log(payload.content)
+    })
 
-    window.ipc.on("GET_FILE_LOCATION", (payload) => {
-        console.log(payload.content)
-        this.selectedPath = payload.content
-    });
+    window.ipc.on('GET_FILE_LOCATION', (payload) => {
+      console.log(payload.content)
+      this.selectedPath = payload.content
+    })
 
-     window.ipc.on("OPEN_SELECTED_FILE", (payload) => {
-        this.selectedCADFile = payload.content
-    });
+    window.ipc.on('OPEN_SELECTED_FILE', (payload) => {
+      this.selectedCADFile = payload.content
+    })
+
+    window.ipc.on('LOAD_PRESSURE_DATA', (payload) => {
+      this.pressureData = payload.content
+    })
   },
 
   computed: {
     fileName() {
-      return this.firstName || this.lastName ? this.firstName + this.lastName : ''
+      return this.firstName || this.lastName
+        ? this.firstName + this.lastName
+        : ''
     },
   },
 
   methods: {
     updateFirstName(value) {
-      this.firstName = value;
+      this.firstName = value
     },
 
     updateLastName(value) {
-      this.lastName = value;
+      this.lastName = value
     },
 
     readFile(path, fileName) {
-      const payload = { path, fileName };
-      window.ipc.send("CAPTURE_DATA", payload);
+      const payload = { path, fileName }
+      window.ipc.send('CAPTURE_DATA', payload)
     },
 
     selectDownloadDirectory() {
-      window.ipc.send("GET_FILE_LOCATION", undefined);
+      window.ipc.send('GET_FILE_LOCATION', undefined)
     },
 
     openCADFile() {
-      window.ipc.send("OPEN_SELECTED_FILE", undefined);
-    }
+      window.ipc.send('OPEN_SELECTED_FILE', undefined)
+    },
+
+    loadPressureData() {
+      window.ipc.send('LOAD_PRESSURE_DATA', undefined)
+    },
   },
 }
 </script>
@@ -106,12 +122,12 @@ export default {
 }
 
 .CADContainer {
-    justify-content: center;
-    display: flex;
-    width: 600px;
-    text-align: center;
-    flex-direction: column;
-    margin-left: 20px;
+  justify-content: center;
+  display: flex;
+  width: 600px;
+  text-align: center;
+  flex-direction: column;
+  margin-left: 20px;
 }
 
 .textField {
@@ -120,17 +136,17 @@ export default {
 }
 
 .nonEditableTextField {
-    border-width: 0px;
-    border: none;
-    font-size: 18px;
-    margin-top: 25px;
-    overflow: hidden;
-    -o-text-overflow: ellipsis;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid;
-    border-bottom-style: solid;
-    outline: none;
+  border-width: 0px;
+  border: none;
+  font-size: 18px;
+  margin-top: 25px;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid;
+  border-bottom-style: solid;
+  outline: none;
 }
 
 .button {

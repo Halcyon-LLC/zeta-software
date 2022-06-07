@@ -12,6 +12,7 @@
   "main": "background.js",
   "dependencies": {
     "core-js": "^3.8.3",
+    "csv-parser": "^3.0.0",
     "python-shell": "^3.0.1",
     "three": "^0.140.2",
     "three-projected-material": "^2.1.2",
