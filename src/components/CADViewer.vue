@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div ref="canvas"/>
-    <canvas id="heatmap" width="200" height="200" class="heatMap"/>
+    <div ref="canvas" />
+    <canvas id="heatmap" width="200" height="200" class="heatMap" />
   </div>
 </template>
 
@@ -17,6 +17,7 @@ export default {
 
   props: {
     CADFile: String,
+    PressureData: Array,
   },
 
   data() {
@@ -36,7 +37,7 @@ export default {
   watch: {
     CADFile() {
       this.scene.clear() //remove everything before adding to scene
-      this.renderer.clear();
+      this.renderer.clear()
 
       this.light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
       const camera = new THREE.PerspectiveCamera(
@@ -61,6 +62,7 @@ export default {
       this.camera.position.z = cameraZ
 
       // Projecting the heatmap onto the CAD model
+      // TODO: Check if you can render a canvasTexture without any data points
       this.initHeatMap()
       var texture = new THREE.CanvasTexture(document.getElementById('heatmap'))
 
@@ -105,15 +107,11 @@ export default {
     initHeatMap() {
       let heat = simpleheat('heatmap')
       heat.max(100)
-
-      for (let i = 0; i < 15; i++) {
-        heat.add([
-          Math.random() * 200,
-          Math.random() * 200,
-          Math.random() * 100,
-        ])
+      console.log(this.PressureData)
+      if (this.PressureData.length > 0) {
+        heat.data(this.PressureData)
+        heat.draw()
       }
-      heat.draw()
     },
 
     createScene() {
@@ -153,5 +151,4 @@ export default {
   visibility: hidden;
   position: absolute;
 }
-
 </style>
