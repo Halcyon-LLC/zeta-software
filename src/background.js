@@ -99,19 +99,22 @@ ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
 })
 
 ipcMain.on('OPEN_SELECTED_FILE', async (event, payload) => {
-  let selectedPath = ''
   const electron = require('electron')
   const fs = require('fs')
+  var path = require('path')
+  let selectedPath = path.join(__static, './CADFiles', 'TLSO.obj')
 
-  const { canceled, filePaths } = await electron.dialog.showOpenDialog({
-    properties: ['openFile'],
-  })
+  // const { canceled, filePaths } = await electron.dialog.showOpenDialog({
+  //   properties: ['openFile'],
+  // })
 
-  if (!canceled) {
-    selectedPath = filePaths[0]
-  }
+  // if (!canceled) {
+  //   selectedPath = filePaths[0]
+  // }
 
-  if (!selectedPath) return
+  // if (!selectedPath) return
+
+  console.log(selectedPath)
 
   const fileContent = fs.readFileSync(selectedPath).toString()
   event.reply('OPEN_SELECTED_FILE', { content: fileContent })
@@ -138,17 +141,16 @@ ipcMain.on('LOAD_PRESSURE_DATA', async (event, payload) => {
   fs.createReadStream(selectedPath)
     .pipe(parse({ delimiter: ',', from_line: 2 }))
     .on('data', function (row) {
-      console.log(row.pressure)
-      pressureArray.push(row.pressure)
+      pressureArray.push(row)
     })
     .on('end', function () {
       console.log('finished')
+      console.log(pressureArray)
+      event.reply('LOAD_PRESSURE_DATA', { content: pressureArray })
     })
     .on('error', function (error) {
       console.log(error.message)
     })
-
-  event.reply('LOAD_PRESSURE_DATA', { content: pressureArray })
 })
 
 // Exit cleanly on request from parent process in development mode.

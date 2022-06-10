@@ -61,7 +61,6 @@ export default {
     })
 
     window.ipc.on('GET_FILE_LOCATION', (payload) => {
-      console.log(payload.content)
       this.selectedPath = payload.content
     })
 
@@ -72,6 +71,8 @@ export default {
     window.ipc.on('LOAD_PRESSURE_DATA', (payload) => {
       this.pressureData = payload.content
     })
+
+    window.ipc.send('OPEN_SELECTED_FILE', undefined)
   },
 
   computed: {
