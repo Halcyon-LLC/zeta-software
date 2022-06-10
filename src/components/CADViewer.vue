@@ -35,7 +35,7 @@ export default {
   },
 
   watch: {
-    CADFile() {
+    PressureData() {
       this.scene.clear() //remove everything before adding to scene
       this.renderer.clear()
 
@@ -107,10 +107,15 @@ export default {
     initHeatMap() {
       let heat = simpleheat('heatmap')
       heat.max(100)
+      console.log('Pressure data')
       console.log(this.PressureData)
       if (this.PressureData.length > 0) {
-        heat.data(this.PressureData)
+        this.PressureData.map((data) => {
+          heat.add([100, data.y, data.pressure])
+        })
+
         heat.draw()
+        console.log(heat)
       }
     },
 
