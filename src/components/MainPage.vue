@@ -25,7 +25,7 @@
         readonly
       />
       <div class="button" @click="selectDownloadDirectory()">
-        Choose File Directory
+        Choose Download Directory
       </div>
       <div class="button" @click="readFile(selectedPath, fileName)">
         Capture Data
