@@ -121,7 +121,7 @@ export default {
       let heat = simpleheat('heatmap')
       heat.max(this.maxHeatIntensity)
 
-      if (this.PressureData.length > 0) {
+      if (this.PressureData && this.PressureData.length > 0) {
         this.PressureData.map((data) => {
           heat.add([Math.random()*200, data.y, data.pressure])
         })
