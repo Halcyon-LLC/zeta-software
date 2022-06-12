@@ -4,8 +4,11 @@ import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+
 const path = require('path')
+const fs = require('fs')
 const { ipcMain } = require('electron')
+const electron = require('electron')
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -85,7 +88,6 @@ ipcMain.on('CAPTURE_DATA', async (event, payload) => {
 
 ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
   let selectedPath = ''
-  const electron = require('electron')
 
   const { canceled, filePaths } = await electron.dialog.showOpenDialog({
     properties: ['openDirectory'],
@@ -99,21 +101,7 @@ ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
 })
 
 ipcMain.on('OPEN_SELECTED_FILE', async (event, payload) => {
-  const electron = require('electron')
-  const fs = require('fs')
-  var path = require('path')
   let selectedPath = path.join(__static, './CADFiles', 'TLSO.obj')
-
-  // const { canceled, filePaths } = await electron.dialog.showOpenDialog({
-  //   properties: ['openFile'],
-  // })
-
-  // if (!canceled) {
-  //   selectedPath = filePaths[0]
-  // }
-
-  // if (!selectedPath) return
-
   console.log(selectedPath)
 
   const fileContent = fs.readFileSync(selectedPath).toString()
@@ -122,9 +110,7 @@ ipcMain.on('OPEN_SELECTED_FILE', async (event, payload) => {
 
 ipcMain.on('LOAD_PRESSURE_DATA', async (event, payload) => {
   let selectedPath = ''
-  const electron = require('electron')
   const parse = require('csv-parser')
-  const fs = require('fs')
 
   const { canceled, filePaths } = await electron.dialog.showOpenDialog({
     properties: ['openFile'],
