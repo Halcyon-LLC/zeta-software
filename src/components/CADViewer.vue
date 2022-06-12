@@ -31,6 +31,7 @@ export default {
       windowHeight: 500,
       CADMesh: undefined,
       CADMaterial: undefined,
+      maxNumHeatPoints: 100,
     }
   },
 
@@ -38,7 +39,29 @@ export default {
     PressureData() {
       this.scene.clear() //remove everything before adding to scene
       this.renderer.clear()
+      this.init()
+    },
 
+    CADFile() {
+      //must re-render if either data or cad file change
+      //cad file does not exist on mounted right away.
+      this.scene.clear() 
+      this.renderer.clear()
+      this.init()
+    },
+  },
+
+  mounted() {
+    this.scene = new THREE.Scene()
+    this.renderer = new THREE.WebGLRenderer({ antialias: true })
+  },
+
+  beforeUnmount() {
+    this.controls.removeEventListener('change', this.render)
+  },
+
+  methods: {
+    init() {
       this.light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
       const camera = new THREE.PerspectiveCamera(
         75,
@@ -82,18 +105,8 @@ export default {
       this.createScene()
       this.startAnimation()
     },
-  },
 
-  mounted() {
-    this.scene = new THREE.Scene()
-    this.renderer = new THREE.WebGLRenderer({ antialias: true })
-  },
 
-  beforeUnmount() {
-    this.controls.removeEventListener('change', this.render)
-  },
-
-  methods: {
     animate() {
       requestAnimationFrame(this.animate)
       this.renderer.render(this.scene, this.camera)
@@ -106,16 +119,14 @@ export default {
 
     initHeatMap() {
       let heat = simpleheat('heatmap')
-      heat.max(100)
-      console.log('Pressure data')
-      console.log(this.PressureData)
+      heat.max(this.maxNumHeatPoints)
+
       if (this.PressureData.length > 0) {
         this.PressureData.map((data) => {
-          heat.add([100, data.y, data.pressure])
+          heat.add([Math.random()*200, data.y, data.pressure])
         })
 
         heat.draw()
-        console.log(heat)
       }
     },
 

@@ -2,7 +2,11 @@
   <div class="mainPage">
     <div class="CADContainer">
       <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
-      <div class="button" @click="openCADFile()">Select CAD</div>
+      <div v-if="isPressureDataEmpty" class="italicText"> No Data is available. </div>
+      <div class="buttonContainer">
+        <div class="button" style="width: 150px" @click="openCADFile()">Select CAD</div>
+        <div class="button" style="margin-left: 5px; width: 200px" @click="loadPressureData()">Load Pressure Data</div>
+      </div>
     </div>
     <div class="userInputCapture">
       <TextField
@@ -26,7 +30,6 @@
       <div class="button" @click="readFile(selectedPath, fileName)">
         Capture Data
       </div>
-      <div class="button" @click="loadPressureData()">Load Pressure Data</div>
     </div>
   </div>
 </template>
@@ -49,6 +52,7 @@ export default {
       selectedPath: '',
       selectedCADFile: '',
       pressureData: [],
+      isPressureDataEmpty: true,
     }
   },
 
@@ -70,6 +74,7 @@ export default {
 
     window.ipc.on('LOAD_PRESSURE_DATA', (payload) => {
       this.pressureData = payload.content
+      this.isPressureDataEmpty = false
     })
 
     window.ipc.send('OPEN_SELECTED_FILE', undefined)
@@ -106,6 +111,7 @@ export default {
     },
 
     loadPressureData() {
+      this.isPressureDataEmpty = true
       window.ipc.send('LOAD_PRESSURE_DATA', undefined)
     },
   },
@@ -161,6 +167,13 @@ export default {
   font-size: 18px;
 }
 
+.buttonContainer {
+  display: flex;
+  flex-direction: row;
+  margin-top: 15px;
+  margin: auto;
+}
+
 .userInputCapture {
   justify-content: center;
   display: flex;
@@ -172,6 +185,13 @@ export default {
 
 .button:hover {
   cursor: pointer;
+}
+
+.italicText {
+    font-style: italic;
+    font-family: 'Source Sans Pro';
+    font-size: 20px;
+    color: #87949b;
 }
 
 .button:active {
