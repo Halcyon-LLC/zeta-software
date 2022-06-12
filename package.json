@@ -12,7 +12,11 @@
   "main": "background.js",
   "dependencies": {
     "core-js": "^3.8.3",
+    "csv-parser": "^3.0.0",
     "python-shell": "^3.0.1",
+    "three": "^0.140.2",
+    "three-projected-material": "^2.1.2",
+    "three-trackballcontrols": "^0.9.0",
     "vue": "^2.6.14"
   },
   "devDependencies": {
@@ -26,6 +30,7 @@
     "electron-rebuild": "^3.2.7",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
+    "simpleheat": "^0.4.0",
     "vue-cli-plugin-electron-builder": "~2.1.1",
     "vue-template-compiler": "^2.6.14"
   },

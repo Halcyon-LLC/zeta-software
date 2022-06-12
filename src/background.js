@@ -4,8 +4,11 @@ import { app, protocol, BrowserWindow } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 const isDevelopment = process.env.NODE_ENV !== 'production'
+
 const path = require('path')
+const fs = require('fs')
 const { ipcMain } = require('electron')
+const electron = require('electron')
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -15,8 +18,8 @@ protocol.registerSchemesAsPrivileged([
 async function createWindow() {
   // Create the browser window.
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1280,
+    height: 960,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See
@@ -84,8 +87,7 @@ ipcMain.on('CAPTURE_DATA', async (event, payload) => {
 })
 
 ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
-  let selectedPath = {}
-  const electron = require('electron')
+  let selectedPath = ''
 
   const { canceled, filePaths } = await electron.dialog.showOpenDialog({
     properties: ['openDirectory'],
@@ -96,6 +98,45 @@ ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
   }
 
   event.reply('GET_FILE_LOCATION', { content: selectedPath })
+})
+
+ipcMain.on('OPEN_SELECTED_FILE', async (event, payload) => {
+  let selectedPath = path.join(__static, './CADFiles', 'TLSO.obj')
+  console.log(selectedPath)
+
+  const fileContent = fs.readFileSync(selectedPath).toString()
+  event.reply('OPEN_SELECTED_FILE', { content: fileContent })
+})
+
+ipcMain.on('LOAD_PRESSURE_DATA', async (event, payload) => {
+  let selectedPath = ''
+  const parse = require('csv-parser')
+
+  const { canceled, filePaths } = await electron.dialog.showOpenDialog({
+    properties: ['openFile'],
+  })
+
+  if (!canceled) {
+    selectedPath = filePaths[0]
+  }
+
+  if (!selectedPath) return
+
+  let pressureArray = []
+
+  fs.createReadStream(selectedPath)
+    .pipe(parse({ delimiter: ',', from_line: 2 }))
+    .on('data', function (row) {
+      pressureArray.push(row)
+    })
+    .on('end', function () {
+      console.log('finished')
+      console.log(pressureArray)
+      event.reply('LOAD_PRESSURE_DATA', { content: pressureArray })
+    })
+    .on('error', function (error) {
+      console.log(error.message)
+    })
 })
 
 // Exit cleanly on request from parent process in development mode.

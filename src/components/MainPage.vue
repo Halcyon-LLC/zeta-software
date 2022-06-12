@@ -1,5 +1,12 @@
 <template>
   <div class="mainPage">
+    <div class="CADContainer">
+      <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
+      <div v-if="isPressureDataEmpty" class="italicText"> No Data is available. </div>
+      <div class="buttonContainer">
+        <div class="button" style="width: 225px" @click="loadPressureData()">Load Pressure Data</div>
+      </div>
+    </div>
     <div class="userInputCapture">
       <TextField
         class="TextField"
@@ -16,30 +23,36 @@
         placeholder="Data download location: "
         readonly
       />
-      <div class="button" @click="selectDownloadDirectory()">
-        Choose File Directory
-      </div>
-      <div class="button" @click="readFile(selectedPath, fileName)">
-        Capture Data
-      </div>
+      <div class="button" @click="selectDownloadDirectory()">Choose File Directory</div>
+      <div :class="isDataCaptureProcessing ? 'button disableButton' : 'button'" :disabled="isDataCaptureProcessing == true" 
+      @click="readFile(selectedPath, fileName)">Capture Data</div>
+      <dotted-loading-bar v-if="isDataCaptureProcessing" class="loadingBar"/>
     </div>
   </div>
 </template>
 
 <script>
+import DottedLoadingBar from "./DottedLoadingBar.vue"
 import TextField from './TextField.vue'
+import CADViewer from './CADViewer.vue'
 
 export default {
   name: 'App',
   components: {
     TextField,
+    CADViewer,
+    DottedLoadingBar,
   },
 
   data() {
     return {
-      firstName: '',
-      lastName: '',
-      selectedPath: '',
+      firstName: "",
+      lastName: "",
+      selectedPath: "",
+      selectedCADFile: "",
+      pressureData: [],
+      isDataCaptureProcessing: false,
+      isPressureDataEmpty: true,
     }
   },
 
@@ -47,14 +60,25 @@ export default {
     // handle reply from the backend
     //This is remounted every single time mainPage re-renders.
     //This acts as a subscription, so you can accidentally attach multiple listeners if page re-renders.
-    window.ipc.on('CAPTURE_DATA', (payload) => {
-      console.log(payload.content)
-    })
+    window.ipc.on("CAPTURE_DATA", (payload) => {
+      console.log(payload.content);
+      this.isDataCaptureProcessing = false //data capture is complete
+    });
 
     window.ipc.on('GET_FILE_LOCATION', (payload) => {
-      console.log(payload.content)
       this.selectedPath = payload.content
     })
+
+    window.ipc.on("OPEN_SELECTED_FILE", (payload) => {
+        this.selectedCADFile = payload.content
+    });
+
+    window.ipc.on('LOAD_PRESSURE_DATA', (payload) => {
+      this.pressureData = payload.content
+      this.isPressureDataEmpty = false
+    })
+
+    window.ipc.send('OPEN_SELECTED_FILE', undefined) //call the function to load the CAD file
   },
 
   computed: {
@@ -76,11 +100,20 @@ export default {
 
     readFile(path, fileName) {
       const payload = { path, fileName }
+      this.isDataCaptureProcessing = true
       window.ipc.send('CAPTURE_DATA', payload)
     },
 
     selectDownloadDirectory() {
       window.ipc.send('GET_FILE_LOCATION', undefined)
+    },
+
+    openCADFile() {
+      window.ipc.send('OPEN_SELECTED_FILE', undefined)
+    },
+
+    loadPressureData() {
+      window.ipc.send('LOAD_PRESSURE_DATA', undefined)
     },
   },
 }
@@ -89,9 +122,20 @@ export default {
 <style>
 .mainPage {
   text-align: center;
+  display: flex;
+  flex-direction: row;
   margin: auto;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+.CADContainer {
+  justify-content: center;
+  display: flex;
+  width: 600px;
+  text-align: center;
+  flex-direction: column;
+  margin-left: 20px;
 }
 
 .textField {
@@ -124,6 +168,18 @@ export default {
   font-size: 18px;
 }
 
+.disableButton {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+  margin: auto;
+}
+
 .userInputCapture {
   justify-content: center;
   display: flex;
@@ -137,7 +193,28 @@ export default {
   cursor: pointer;
 }
 
+.italicText {
+    font-style: italic;
+    font-family: 'Source Sans Pro';
+    font-size: 20px;
+    color: #87949b;
+}
+
 .button:active {
   background-color: #38a0ff;
+}
+
+.loadingBar {
+  margin: auto;
+  margin-top: 10px;
+}
+
+.userInputCapture {
+  justify-content: center;
+  display: flex;
+  width: 250px;
+  text-align: center;
+  flex-direction: column;
+  margin-left: 20px;
 }
 </style>
