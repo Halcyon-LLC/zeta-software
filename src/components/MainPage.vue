@@ -51,6 +51,7 @@ export default {
       lastName: "",
       selectedPath: "",
       selectedCADFile: "",
+      pressureData: [],
       isDataCaptureProcessing: false,
       isPressureDataEmpty: true,
     }
