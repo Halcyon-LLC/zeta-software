@@ -31,7 +31,7 @@ export default {
       windowHeight: 500,
       CADMesh: undefined,
       CADMaterial: undefined,
-      maxNumHeatPoints: 100,
+      maxHeatIntensity: 100,
     }
   },
 
@@ -119,7 +119,7 @@ export default {
 
     initHeatMap() {
       let heat = simpleheat('heatmap')
-      heat.max(this.maxNumHeatPoints)
+      heat.max(this.maxHeatIntensity)
 
       if (this.PressureData.length > 0) {
         this.PressureData.map((data) => {
