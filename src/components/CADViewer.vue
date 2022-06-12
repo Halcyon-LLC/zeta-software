@@ -7,7 +7,7 @@
 
 <script>
 import * as THREE from 'three'
-import TrackballControls from 'three-trackballcontrols'
+import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls'
 import ProjectedMaterial from 'three-projected-material'
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 import simpleheat from 'simpleheat'
