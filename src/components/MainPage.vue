@@ -111,7 +111,6 @@ export default {
     },
 
     loadPressureData() {
-      this.isPressureDataEmpty = true
       window.ipc.send('LOAD_PRESSURE_DATA', undefined)
     },
   },
