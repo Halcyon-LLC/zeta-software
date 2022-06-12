@@ -4,7 +4,6 @@
       <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
       <div v-if="isPressureDataEmpty" class="italicText"> No Data is available. </div>
       <div class="buttonContainer">
-        <!-- <div class="button" style="width: 150px" @click="openCADFile()">Select CAD</div> -->
         <div class="button" style="width: 225px" @click="loadPressureData()">Load Pressure Data</div>
       </div>
     </div>
