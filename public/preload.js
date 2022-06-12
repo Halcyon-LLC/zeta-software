@@ -1,6 +1,12 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
-const validChannels = ['CAPTURE_DATA', 'WRITE_FILE', 'GET_FILE_LOCATION']
+const validChannels = [
+  'CAPTURE_DATA',
+  'WRITE_FILE',
+  'GET_FILE_LOCATION',
+  'OPEN_SELECTED_FILE',
+  'LOAD_PRESSURE_DATA',
+]
 contextBridge.exposeInMainWorld('ipc', {
   send: (channel, data) => {
     if (validChannels.includes(channel)) {
