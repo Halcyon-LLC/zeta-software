@@ -4,8 +4,8 @@
       <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
       <div v-if="isPressureDataEmpty" class="italicText"> No Data is available. </div>
       <div class="buttonContainer">
-        <div class="button" style="width: 150px" @click="openCADFile()">Select CAD</div>
-        <div class="button" style="margin-left: 5px; width: 200px" @click="loadPressureData()">Load Pressure Data</div>
+        <!-- <div class="button" style="width: 150px" @click="openCADFile()">Select CAD</div> -->
+        <div class="button" style="width: 225px" @click="loadPressureData()">Load Pressure Data</div>
       </div>
     </div>
     <div class="userInputCapture">
@@ -101,6 +101,7 @@ export default {
 
     readFile(path, fileName) {
       const payload = { path, fileName }
+      this.isDataCaptureProcessing = true
       window.ipc.send('CAPTURE_DATA', payload)
     },
 
@@ -109,7 +110,6 @@ export default {
     },
 
     openCADFile() {
-      this.isDataCaptureProcessing = true
       window.ipc.send('OPEN_SELECTED_FILE', undefined)
     },
 
@@ -177,7 +177,7 @@ export default {
 .buttonContainer {
   display: flex;
   flex-direction: row;
-  margin-top: 15px;
+  margin-top: 20px;
   margin: auto;
 }
 
