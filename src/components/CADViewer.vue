@@ -1,7 +1,7 @@
 <template>
   <div>
-    <div ref="canvas"/>
-    <canvas id="heatmap" width="200" height="200" class="heatMap"/>
+    <div ref="canvas" />
+    <canvas id="heatmap" width="200" height="200" class="heatMap" />
   </div>
 </template>
 
@@ -17,6 +17,7 @@ export default {
 
   props: {
     CADFile: String,
+    PressureData: Array,
   },
 
   data() {
@@ -30,14 +31,37 @@ export default {
       windowHeight: 500,
       CADMesh: undefined,
       CADMaterial: undefined,
+      maxHeatIntensity: 100,
     }
   },
 
   watch: {
-    CADFile() {
+    PressureData() {
       this.scene.clear() //remove everything before adding to scene
-      this.renderer.clear();
+      this.renderer.clear()
+      this.init()
+    },
 
+    CADFile() {
+      //must re-render if either data or cad file change
+      //cad file does not exist on mounted right away.
+      this.scene.clear() 
+      this.renderer.clear()
+      this.init()
+    },
+  },
+
+  mounted() {
+    this.scene = new THREE.Scene()
+    this.renderer = new THREE.WebGLRenderer({ antialias: true })
+  },
+
+  beforeUnmount() {
+    this.controls.removeEventListener('change', this.render)
+  },
+
+  methods: {
+    init() {
       this.light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
       const camera = new THREE.PerspectiveCamera(
         75,
@@ -61,6 +85,7 @@ export default {
       this.camera.position.z = cameraZ
 
       // Projecting the heatmap onto the CAD model
+      // TODO: Check if you can render a canvasTexture without any data points
       this.initHeatMap()
       var texture = new THREE.CanvasTexture(document.getElementById('heatmap'))
 
@@ -80,18 +105,8 @@ export default {
       this.createScene()
       this.startAnimation()
     },
-  },
 
-  mounted() {
-    this.scene = new THREE.Scene()
-    this.renderer = new THREE.WebGLRenderer({ antialias: true })
-  },
 
-  beforeUnmount() {
-    this.controls.removeEventListener('change', this.render)
-  },
-
-  methods: {
     animate() {
       requestAnimationFrame(this.animate)
       this.renderer.render(this.scene, this.camera)
@@ -104,16 +119,15 @@ export default {
 
     initHeatMap() {
       let heat = simpleheat('heatmap')
-      heat.max(100)
+      heat.max(this.maxHeatIntensity)
 
-      for (let i = 0; i < 15; i++) {
-        heat.add([
-          Math.random() * 200,
-          Math.random() * 200,
-          Math.random() * 100,
-        ])
+      if (this.PressureData.length > 0) {
+        this.PressureData.map((data) => {
+          heat.add([Math.random()*200, data.y, data.pressure])
+        })
+
+        heat.draw()
       }
-      heat.draw()
     },
 
     createScene() {
@@ -153,5 +167,4 @@ export default {
   visibility: hidden;
   position: absolute;
 }
-
 </style>
