@@ -1,8 +1,12 @@
 <template>
   <div class="mainPage">
     <div class="CADContainer">
-      <CADViewer :CADFile="selectedCADFile"/>
-      <div class="button" @click="openCADFile()">Select CAD</div>
+      <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
+      <div v-if="isPressureDataEmpty" class="italicText"> No Data is available. </div>
+      <div class="buttonContainer">
+        <div class="button" style="width: 150px" @click="openCADFile()">Select CAD</div>
+        <div class="button" style="margin-left: 5px; width: 200px" @click="loadPressureData()">Load Pressure Data</div>
+      </div>
     </div>
     <div class="userInputCapture">
       <TextField
@@ -14,7 +18,7 @@
         placeHolder="Patient's last name"
         @textUpdate="updateLastName"
       />
-       <input
+      <input
         class="nonEditableTextField"
         v-model="selectedPath"
         placeholder="Data download location: "
@@ -29,12 +33,12 @@
 </template>
 
 <script>
-import TextField from "./TextField.vue";
-import CADViewer from "./CADViewer.vue";
 import DottedLoadingBar from "./DottedLoadingBar.vue"
+import TextField from './TextField.vue'
+import CADViewer from './CADViewer.vue'
 
 export default {
-  name: "App",
+  name: 'App',
   components: {
     TextField,
     CADViewer,
@@ -48,7 +52,8 @@ export default {
       selectedPath: "",
       selectedCADFile: "",
       isDataCaptureProcessing: false,
-    };
+      isPressureDataEmpty: true,
+    }
   },
 
   mounted() {
@@ -60,19 +65,27 @@ export default {
       this.isDataCaptureProcessing = false //data capture is complete
     });
 
-    window.ipc.on("GET_FILE_LOCATION", (payload) => {
-        console.log(payload.content)
-        this.selectedPath = payload.content
-    });
+    window.ipc.on('GET_FILE_LOCATION', (payload) => {
+      this.selectedPath = payload.content
+    })
 
     window.ipc.on("OPEN_SELECTED_FILE", (payload) => {
         this.selectedCADFile = payload.content
     });
+
+    window.ipc.on('LOAD_PRESSURE_DATA', (payload) => {
+      this.pressureData = payload.content
+      this.isPressureDataEmpty = false
+    })
+
+    window.ipc.send('OPEN_SELECTED_FILE', undefined) //call the function to load the CAD file
   },
 
   computed: {
     fileName() {
-      return this.firstName || this.lastName ? this.firstName + this.lastName : ''
+      return this.firstName || this.lastName
+        ? this.firstName + this.lastName
+        : ''
     },
   },
 
@@ -87,17 +100,21 @@ export default {
 
     readFile(path, fileName) {
       const payload = { path, fileName }
-      window.ipc.send("CAPTURE_DATA", payload)
+      window.ipc.send('CAPTURE_DATA', payload)
     },
 
     selectDownloadDirectory() {
-      window.ipc.send("GET_FILE_LOCATION", undefined)
+      window.ipc.send('GET_FILE_LOCATION', undefined)
     },
 
     openCADFile() {
       this.isDataCaptureProcessing = true
-      window.ipc.send("OPEN_SELECTED_FILE", undefined)
-    }
+      window.ipc.send('OPEN_SELECTED_FILE', undefined)
+    },
+
+    loadPressureData() {
+      window.ipc.send('LOAD_PRESSURE_DATA', undefined)
+    },
   },
 }
 </script>
@@ -113,12 +130,12 @@ export default {
 }
 
 .CADContainer {
-    justify-content: center;
-    display: flex;
-    width: 600px;
-    text-align: center;
-    flex-direction: column;
-    margin-left: 20px;
+  justify-content: center;
+  display: flex;
+  width: 600px;
+  text-align: center;
+  flex-direction: column;
+  margin-left: 20px;
 }
 
 .textField {
@@ -127,17 +144,17 @@ export default {
 }
 
 .nonEditableTextField {
-    border-width: 0px;
-    border: none;
-    font-size: 18px;
-    margin-top: 25px;
-    overflow: hidden;
-    -o-text-overflow: ellipsis;
-    -ms-text-overflow: ellipsis;
-    text-overflow: ellipsis;
-    border-bottom: 1px solid;
-    border-bottom-style: solid;
-    outline: none;
+  border-width: 0px;
+  border: none;
+  font-size: 18px;
+  margin-top: 25px;
+  overflow: hidden;
+  -o-text-overflow: ellipsis;
+  -ms-text-overflow: ellipsis;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid;
+  border-bottom-style: solid;
+  outline: none;
 }
 
 .button {
@@ -156,8 +173,31 @@ export default {
   opacity: 0.3;
 }
 
+.buttonContainer {
+  display: flex;
+  flex-direction: row;
+  margin-top: 15px;
+  margin: auto;
+}
+
+.userInputCapture {
+  justify-content: center;
+  display: flex;
+  width: 250px;
+  text-align: center;
+  flex-direction: column;
+  margin-left: 20px;
+}
+
 .button:hover {
   cursor: pointer;
+}
+
+.italicText {
+    font-style: italic;
+    font-family: 'Source Sans Pro';
+    font-size: 20px;
+    color: #87949b;
 }
 
 .button:active {
