@@ -101,7 +101,7 @@ ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
 })
 
 ipcMain.on('OPEN_SELECTED_FILE', async (event, payload) => {
-  let selectedPath = path.join(__static, './CADFiles', 'TLSO.obj')
+  let selectedPath = path.join(__static, './CADFiles', 'MaleKidTorso.obj')
   console.log(selectedPath)
 
   const fileContent = fs.readFileSync(selectedPath).toString()
