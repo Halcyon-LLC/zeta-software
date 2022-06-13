@@ -45,7 +45,7 @@ export default {
     CADFile() {
       //must re-render if either data or cad file change
       //cad file does not exist on mounted right away.
-      this.scene.clear() 
+      this.scene.clear()
       this.renderer.clear()
       this.init()
     },
@@ -62,7 +62,7 @@ export default {
 
   methods: {
     init() {
-      this.light = new THREE.DirectionalLight('hsl(0, 100%, 100%)')
+      const Z_ZOOM_SCALE = 10
       const camera = new THREE.PerspectiveCamera(
         75,
         this.windowWidth / this.windowHeight, //aspect ratio
@@ -70,6 +70,10 @@ export default {
         500
       )
       this.camera = camera
+
+      // Adds a white directional light from the top and one that points out from the camera
+      this.light = new THREE.DirectionalLight()
+      camera.add(new THREE.PointLight(0xffffff, 1))
 
       // Receiving the CADFile from backend and loading it into a Group object
       const loader = new OBJLoader()
@@ -81,22 +85,24 @@ export default {
       box.getBoundingSphere(sphere)
       const fov = this.camera.fov * (Math.PI / 180)
       let cameraZ = Math.abs((sphere.radius / 4) * Math.tan(fov * 2))
-      cameraZ *= 7 // zoom out a little so that objects don't fill the screen
+      cameraZ *= Z_ZOOM_SCALE // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
 
       // Projecting the heatmap onto the CAD model
-      // TODO: Check if you can render a canvasTexture without any data points
       this.initHeatMap()
       var texture = new THREE.CanvasTexture(document.getElementById('heatmap'))
 
+      // You can pass any option that belongs to MeshPhysicalMaterial
       const material = new ProjectedMaterial({
         camera, // the camera that acts as a projector
         texture, // the texture being projected
-        textureScale: 0.8, // scale down the texture a bit
+        textureScale: 1.0, // scale down the texture a bit
         textureOffset: new THREE.Vector2(0, 0), // you can translate the texture if you want
         cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
-        color: '#FFF', // the color of the object if it's not projected on
-        roughness: 0.3, // you can pass any other option that belongs to MeshPhysicalMaterial
+        color: '#dfdfdf', // the color of the object if it's not projected on
+        roughness: 1.0,
+        reflectivity: 0.0,
+        metalness: 0.0,
       })
       const CADMesh = new THREE.Mesh(result.children[0].geometry, material)
       this.CADMesh = CADMesh
@@ -105,7 +111,6 @@ export default {
       this.createScene()
       this.startAnimation()
     },
-
 
     animate() {
       requestAnimationFrame(this.animate)
@@ -123,7 +128,7 @@ export default {
 
       if (this.PressureData.length > 0) {
         this.PressureData.map((data) => {
-          heat.add([Math.random()*200, data.y, data.pressure])
+          heat.add([Math.random() * 200, data.y, data.pressure])
         })
 
         heat.draw()
@@ -135,7 +140,6 @@ export default {
       this.scene.add(this.light)
       this.scene.add(this.CADMesh)
       this.renderer.setSize(this.windowWidth, this.windowHeight)
-      this.light.position.set(0, 0, 5)
       this.CADMesh.position.set(0, 0, 0)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
