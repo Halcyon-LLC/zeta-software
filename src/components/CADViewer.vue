@@ -62,6 +62,7 @@ export default {
 
   methods: {
     init() {
+      const Z_ZOOM_SCALE = 10
       const camera = new THREE.PerspectiveCamera(
         75,
         this.windowWidth / this.windowHeight, //aspect ratio
@@ -84,7 +85,7 @@ export default {
       box.getBoundingSphere(sphere)
       const fov = this.camera.fov * (Math.PI / 180)
       let cameraZ = Math.abs((sphere.radius / 4) * Math.tan(fov * 2))
-      cameraZ *= 10 // zoom out a little so that objects don't fill the screen
+      cameraZ *= Z_ZOOM_SCALE // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
 
       // Projecting the heatmap onto the CAD model
