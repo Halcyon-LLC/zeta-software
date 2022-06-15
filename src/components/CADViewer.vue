@@ -29,8 +29,10 @@ export default {
       light: undefined,
       windowWidth: 500,
       windowHeight: 500,
-      CADMesh: undefined,
-      CADMaterial: undefined,
+      CADMeshFront: undefined,
+      CADMeshBack: undefined,
+      CADMaterialBack: undefined,
+      CADMaterialFront: undefined,
       maxHeatIntensity: 100,
     }
   },
@@ -93,7 +95,7 @@ export default {
       var texture = new THREE.CanvasTexture(document.getElementById('heatmap'))
 
       // You can pass any option that belongs to MeshPhysicalMaterial
-      const material = new ProjectedMaterial({
+      const materialFront = new ProjectedMaterial({
         camera, // the camera that acts as a projector
         texture, // the texture being projected
         textureScale: 1.0, // scale down the texture a bit
@@ -104,9 +106,36 @@ export default {
         reflectivity: 0.0,
         metalness: 0.0,
       })
-      const CADMesh = new THREE.Mesh(result.children[0].geometry, material)
-      this.CADMesh = CADMesh
-      this.CADMaterial = material
+
+      const CADMeshFront = new THREE.Mesh(
+        result.children[0].geometry,
+        materialFront
+      )
+      this.CADMeshFront = CADMeshFront
+      this.CADMaterialFront = materialFront
+      this.CADMaterialFront.project(this.CADMeshFront)
+
+      this.camera.position.z = -cameraZ
+      this.camera.lookAt(0, 0, 0)
+      const materialBack = new ProjectedMaterial({
+        camera, // the camera that acts as a projector
+        texture, // the texture being projected
+        textureScale: 1.0, // scale down the texture a bit
+        textureOffset: new THREE.Vector2(0, 0), // you can translate the texture if you want
+        cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
+        color: '#dfdfdf', // the color of the object if it's not projected on
+        roughness: 1.0,
+        reflectivity: 0.0,
+        metalness: 0.0,
+      })
+
+      const CADMeshBack = new THREE.Mesh(
+        result.children[0].geometry,
+        materialBack
+      )
+      this.CADMeshBack = CADMeshBack
+      this.CADMaterialBack = materialBack
+      this.CADMaterialBack.project(this.CADMeshBack)
 
       this.createScene()
       this.startAnimation()
@@ -126,28 +155,30 @@ export default {
       let heat = simpleheat('heatmap')
       heat.max(this.maxHeatIntensity)
 
-      if (this.PressureData.length > 0) {
-        this.PressureData.map((data) => {
-          heat.add([Math.random() * 200, data.y, data.pressure])
-        })
-
-        heat.draw()
+      for (let i = 0; i < 20; i++) {
+        heat.add([
+          Math.random() * 200,
+          Math.random() * 200,
+          Math.random() * this.maxHeatIntensity,
+        ])
       }
+      heat.draw()
     },
 
     createScene() {
       this.scene.add(this.camera)
       this.scene.add(this.light)
-      this.scene.add(this.CADMesh)
+      this.scene.add(this.CADMeshFront)
+      this.scene.add(this.CADMeshBack)
       this.renderer.setSize(this.windowWidth, this.windowHeight)
-      this.CADMesh.position.set(0, 0, 0)
+      this.CADMeshFront.position.set(0, 0, 0)
+      this.CADMeshBack.position.set(0, 0, -0.02)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
     startAnimation() {
       this.$refs.canvas.appendChild(this.renderer.domElement)
       // Projecting the material onto the CAD mesh
-      this.CADMaterial.project(this.CADMesh)
       this.controls = new TrackballControls(
         this.camera,
         this.renderer.domElement
@@ -168,7 +199,8 @@ export default {
 
 <style>
 .heatMap {
-  visibility: hidden;
+  /* visibility: hidden; */
   position: absolute;
+  border: 5px solid black;
 }
 </style>
