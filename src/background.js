@@ -9,6 +9,7 @@ const path = require('path')
 const fs = require('fs')
 const { ipcMain } = require('electron')
 const electron = require('electron')
+const firmataClient = require('./firmataClient.js')
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -74,8 +75,17 @@ app.on('ready', async () => {
   createWindow()
 })
 
+ipcMain.on('DETECT_MCU', async (event) => {
+  let boardStatus = false // TODO: make enum?
+  try {
+    boardStatus = await firmatClient.detectMCU()
+  } catch (err) {
+    console.log
+  }
+  event.reply('DETECT_MCU', { content: boardStatus })
+})
+
 ipcMain.on('CAPTURE_DATA', async (event, payload) => {
-  const firmataClient = require('./firmataClient.js')
   let message = ''
   try {
     message = await firmataClient.captureData(payload)
