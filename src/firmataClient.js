@@ -1,3 +1,32 @@
+function detectMCU() {
+  const { SerialPort } = require('serialport')
+
+  let path = ''
+  let MCUPort = ''
+  SerialPort.list().then((ports) => {
+    let done = false
+    let count = 0
+    let allports = ports.length
+    ports.forEach(function (port) {
+      count = count + 1
+      pm = port.manufacturer
+
+      if (typeof pm !== 'undefined' && pm.includes('arduino')) {
+        path = port.path
+        MCUPort = new SerialPort(path, { baudRate: 115200 })
+        MCUPort.on('open', function () {
+          console.log(`connected! arduino is now connected at port ${path}`)
+        })
+        done = true
+      }
+
+      if (count === allports && done === false) {
+        console.log(`can't find any arduino`)
+      }
+    })
+  })
+}
+
 function captureData(payload) {
   return new Promise((resolve, reject) => {
     const { PythonShell } = require('python-shell')
@@ -44,4 +73,6 @@ function getDestination(payload) {
   return path.join(destination, fileName)
 }
 
-module.exports = { captureData }
+module.exports = { detectMCU, captureData }
+
+detectMCU()
