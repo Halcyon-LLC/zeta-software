@@ -1,7 +1,13 @@
 <template>
   <div>
     <div ref="canvas" />
-    <canvas id="heatmap" width="200" height="200" class="heatMap" />
+    <canvas
+      id="heatmap"
+      ref="heatmap"
+      width="450"
+      height="250"
+      class="heatMap"
+    />
   </div>
 </template>
 
@@ -115,8 +121,11 @@ export default {
       this.CADMaterialFront = materialFront
       this.CADMaterialFront.project(this.CADMeshFront)
 
-      this.camera.position.z = -cameraZ
-      this.camera.lookAt(0, 0, 0)
+      console.log(-cameraZ)
+      // Move camer close to the torso so it doesn't grow the projection
+      this.camera.position.z = -1.5
+      this.camera.position.y = 2
+      this.camera.lookAt(0, this.camera.position.y, 0)
       const materialBack = new ProjectedMaterial({
         camera, // the camera that acts as a projector
         texture, // the texture being projected
@@ -137,6 +146,11 @@ export default {
       this.CADMaterialBack = materialBack
       this.CADMaterialBack.project(this.CADMeshBack)
 
+      // Moving camera back to ideal distance from torso
+      this.camera.position.z = -cameraZ
+      this.camera.position.x = 0
+      this.camera.position.y = 0
+
       this.createScene()
       this.startAnimation()
     },
@@ -153,15 +167,19 @@ export default {
 
     initHeatMap() {
       let heat = simpleheat('heatmap')
+      let radius = 30
+      let blurRadius = 25
       heat.max(this.maxHeatIntensity)
+      heat.radius(radius, blurRadius)
 
-      for (let i = 0; i < 20; i++) {
-        heat.add([
-          Math.random() * 200,
-          Math.random() * 200,
-          Math.random() * this.maxHeatIntensity,
-        ])
+      console.log(this.PressureData)
+      if (this.PressureData.length > 0) {
+        this.PressureData.map((data) => {
+          // TODO: Need to stop hardcoding 100
+          heat.add([data.x, data.y, data.pressure])
+        })
       }
+      console.log(heat)
       heat.draw()
     },
 
