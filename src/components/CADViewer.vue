@@ -1,13 +1,15 @@
 <template>
   <div>
-    <div ref="canvas" />
-    <canvas
-      id="heatmap"
-      ref="heatmap"
-      width="450"
-      height="250"
-      class="heatMap"
-    />
+    <div
+      class="button buttonSpacing"
+      style="width: 225px"
+      @click="resetCamera()"
+    >
+      Reset View
+    </div>
+    <div ref="canvas" class="CADViewer" />
+    <canvas id="heatmapFront" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapBack" width="450" height="250" class="heatMap" />
   </div>
 </template>
 
@@ -96,63 +98,55 @@ export default {
       cameraZ *= Z_ZOOM_SCALE // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
 
-      // Projecting the heatmap onto the CAD model
-      this.initHeatMap()
-      var texture = new THREE.CanvasTexture(document.getElementById('heatmap'))
-
-      // You can pass any option that belongs to MeshPhysicalMaterial
-      const materialFront = new ProjectedMaterial({
-        camera, // the camera that acts as a projector
-        texture, // the texture being projected
-        textureScale: 1.0, // scale down the texture a bit
-        textureOffset: new THREE.Vector2(0, 0), // you can translate the texture if you want
-        cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
-        color: '#dfdfdf', // the color of the object if it's not projected on
-        roughness: 1.0,
-        reflectivity: 0.0,
-        metalness: 0.0,
-      })
-
-      const CADMeshFront = new THREE.Mesh(
-        result.children[0].geometry,
-        materialFront
+      /*
+        For each projection, we create a new mesh which has the canvas projected onto it's material
+        Thus, the only thing we need to alter before creating a mesh, is move the camera to the specified
+        location you want to project the texture from
+      */
+      this.CADMeshFront = this.generateMeshWithTexture(
+        camera,
+        result,
+        'heatmapFront'
       )
-      this.CADMeshFront = CADMeshFront
-      this.CADMaterialFront = materialFront
-      this.CADMaterialFront.project(this.CADMeshFront)
 
-      console.log(-cameraZ)
-      // Move camer close to the torso so it doesn't grow the projection
-      this.camera.position.z = -1.5
-      this.camera.position.y = 2
+      // Move camera close to the torso so it doesn't grow the projection
+      this.camera.position = new THREE.Vector3(0, 2, -1.5)
       this.camera.lookAt(0, this.camera.position.y, 0)
-      const materialBack = new ProjectedMaterial({
-        camera, // the camera that acts as a projector
-        texture, // the texture being projected
-        textureScale: 1.0, // scale down the texture a bit
-        textureOffset: new THREE.Vector2(0, 0), // you can translate the texture if you want
-        cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
-        color: '#dfdfdf', // the color of the object if it's not projected on
-        roughness: 1.0,
-        reflectivity: 0.0,
-        metalness: 0.0,
-      })
-
-      const CADMeshBack = new THREE.Mesh(
-        result.children[0].geometry,
-        materialBack
+      this.CADMeshBack = this.generateMeshWithTexture(
+        this.camera,
+        result,
+        'heatmapBack'
       )
-      this.CADMeshBack = CADMeshBack
-      this.CADMaterialBack = materialBack
-      this.CADMaterialBack.project(this.CADMeshBack)
 
       // Moving camera back to ideal distance from torso
-      this.camera.position.z = -cameraZ
-      this.camera.position.x = 0
-      this.camera.position.y = 0
+      this.camera.position = new THREE.Vector3(0, 0, -cameraZ)
 
       this.createScene()
       this.startAnimation()
+    },
+
+    generateMeshWithTexture(camera, CADModel, canvasID) {
+      // Projecting the heatmap onto the CAD model
+      this.initHeatMap(canvasID)
+      var texture = new THREE.CanvasTexture(document.getElementById(canvasID))
+
+      // You can pass any option that belongs to MeshPhysicalMaterial
+      const material = new ProjectedMaterial({
+        camera, // the camera that acts as a projector
+        texture, // the texture being projected
+        textureScale: 1.0, // scale down the texture a bit
+        textureOffset: new THREE.Vector2(0, 0), // you can translate the texture if you want
+        cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
+        color: '#dfdfdf', // the color of the object if it's not projected on
+        roughness: 1.0,
+        reflectivity: 0.0,
+        metalness: 0.0,
+      })
+
+      const CADMesh = new THREE.Mesh(CADModel.children[0].geometry, material)
+      material.project(CADMesh)
+
+      return CADMesh
     },
 
     animate() {
@@ -165,8 +159,8 @@ export default {
       this.renderer.render(this.scene, this.camera)
     },
 
-    initHeatMap() {
-      let heat = simpleheat('heatmap')
+    initHeatMap(canvasID) {
+      let heat = simpleheat(canvasID)
       let radius = 30
       let blurRadius = 25
       heat.max(this.maxHeatIntensity)
@@ -174,13 +168,25 @@ export default {
 
       console.log(this.PressureData)
       if (this.PressureData.length > 0) {
-        this.PressureData.map((data) => {
-          // TODO: Need to stop hardcoding 100
-          heat.add([data.x, data.y, data.pressure])
-        })
+        if (canvasID == 'heatmapFront') {
+          this.PressureData.map((data) => {
+            heat.add([data.x, data.y, data.pressure])
+          })
+        } else {
+          this.PressureData.map((data) => {
+            heat.add([data.x, data.y, data.pressure / 5])
+          })
+        }
       }
       console.log(heat)
       heat.draw()
+    },
+
+    resetCamera() {
+      // TODO: Try to do through moving camera or orbital controls
+      this.scene.clear() //remove everything before adding to scene
+      this.renderer.clear()
+      this.init()
     },
 
     createScene() {
@@ -216,9 +222,12 @@ export default {
 </script>
 
 <style>
+@import '../assets/styles/buttonStyles.css';
+.buttonSpacing {
+  margin: auto;
+}
 .heatMap {
-  /* visibility: hidden; */
+  visibility: hidden;
   position: absolute;
-  border: 5px solid black;
 }
 </style>
