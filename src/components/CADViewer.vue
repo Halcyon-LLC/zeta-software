@@ -208,7 +208,7 @@ export default {
         this.renderer.domElement
       )
       this.controls.addEventListener('change', this.render)
-      this.controls.rotateSpeed = 1.0
+      this.controls.rotateSpeed = 3.0
       this.controls.zoomSpeed = 5
       this.controls.panSpeed = 0.8
       this.controls.noZoom = true
