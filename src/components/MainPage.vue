@@ -72,7 +72,6 @@ export default {
     //This is remounted every single time mainPage re-renders.
     //This acts as a subscription, so you can accidentally attach multiple listeners if page re-renders.
     window.ipc.on('CAPTURE_DATA', (payload) => {
-      console.log(payload.content)
       this.isDataCaptureProcessing = false //data capture is complete
     })
 
