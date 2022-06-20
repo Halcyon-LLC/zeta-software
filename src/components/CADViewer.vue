@@ -1,12 +1,6 @@
 <template>
   <div>
-    <div
-      class="button buttonSpacing"
-      style="width: 225px"
-      @click="resetCamera()"
-    >
-      Reset View
-    </div>
+    <div class="button buttonSpacing" @click="resetCamera()">Reset View</div>
     <div ref="canvas" class="CADViewer" />
     <canvas id="heatmapFront" width="450" height="250" class="heatMap" />
     <canvas id="heatmapBack" width="450" height="250" class="heatMap" />
@@ -37,11 +31,14 @@ export default {
       light: undefined,
       windowWidth: 500,
       windowHeight: 500,
+      canvasWidth: 450,
+      canvasHeight: 250,
       CADMeshFront: undefined,
-      // CADMeshBack: undefined,
       CADMaterialBack: undefined,
       CADMaterialFront: undefined,
       maxHeatIntensity: 100,
+      heatBlurRadius: 20,
+      heatRadius: 30,
     }
   },
 
@@ -103,26 +100,24 @@ export default {
         Thus, the only thing we need to alter before creating a mesh, is move the camera to the specified
         location you want to project the texture from
       */
-      this.camera.position = new THREE.Vector3(0.2, 0, 2.2)
-      this.camera.lookAt(0.2, 0, -100)
+      const LEFT_CHEST_PROJECTION_DISTANCE = 1.2
+      const FRONT_CHEST_PROJECTION_DISTANCE = 1.85
+
+      this.camera.position = new THREE.Vector3(
+        LEFT_CHEST_PROJECTION_DISTANCE,
+        0,
+        FRONT_CHEST_PROJECTION_DISTANCE
+      )
+      this.camera.lookAt(0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * -0.5
       this.CADMeshFront = this.generateMeshWithTexture(
         camera,
         result,
-        'heatmapFront'
+        'heatmapFront',
+        4,
+        8
       )
-
-      // TODO: For the demo will only show the mat in the front
-      // TODO: To add back, uncomment out the data and add it to the scene
-      // // Move camera close to the torso so it doesn't grow the projection
-      // this.camera.position = new THREE.Vector3(0, 2, -1.5)
-      // this.camera.lookAt(0, this.camera.position.y, 0)
-      // this.CADMeshBack = this.generateMeshWithTexture(
-      //   this.camera,
-      //   result,
-      //   'heatmapBack'
-      // )
 
       // // Moving camera back to ideal distance from torso
       this.camera.position = new THREE.Vector3(0, 0, cameraZ)
@@ -131,9 +126,9 @@ export default {
       this.startAnimation()
     },
 
-    generateMeshWithTexture(camera, CADModel, canvasID) {
+    generateMeshWithTexture(camera, CADModel, canvasID, numRows, numCols) {
       // Projecting the heatmap onto the CAD model
-      this.initHeatMap(canvasID)
+      this.initHeatMap(canvasID, numRows, numCols)
       var texture = new THREE.CanvasTexture(document.getElementById(canvasID))
 
       // You can pass any option that belongs to MeshPhysicalMaterial
@@ -165,7 +160,7 @@ export default {
       this.renderer.render(this.scene, this.camera)
     },
 
-    initHeatMap(canvasID) {
+    initHeatMap(canvasID, numRows, numCols) {
       // Finding the max pressure val
       for (let dataIdx = 0; dataIdx < this.PressureData.length; dataIdx++) {
         this.maxHeatIntensity = Math.max(
@@ -175,19 +170,17 @@ export default {
       }
       // Setting heatmap parameters
       let heat = simpleheat(canvasID)
-      let radius = 30
-      let blurRadius = 20
       heat.max(this.maxHeatIntensity)
-      heat.radius(radius, blurRadius)
+      heat.radius(this.heatRadius, this.heatBlurRadius)
 
       if (this.PressureData.length > 0) {
         // Read in the pressure data populating the canvasWidth (450 wide) col by col then row by row
         let pressureNum = 0
-        for (let row = 1; row <= 4; row++) {
-          for (let col = 1; col <= 8; col++) {
+        for (let row = 1; row <= numRows; row++) {
+          for (let col = 1; col <= numCols; col++) {
             heat.add([
-              col * 50,
-              row * 50,
+              col * (this.canvasWidth / (numCols + 1)),
+              row * (this.canvasHeight / (numRows + 1)),
               this.PressureData[pressureNum].pressure,
             ])
             pressureNum++
@@ -208,10 +201,8 @@ export default {
       this.scene.add(this.camera)
       this.scene.add(this.light)
       this.scene.add(this.CADMeshFront)
-      // this.scene.add(this.CADMeshBack)
       this.renderer.setSize(this.windowWidth, this.windowHeight)
       this.CADMeshFront.position.set(0, 0, 0)
-      // this.CADMeshBack.position.set(0, 0, -0.02)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
@@ -240,6 +231,7 @@ export default {
 @import '../assets/styles/buttonStyles.css';
 .buttonSpacing {
   margin: auto;
+  width: 225px;
 }
 .heatMap {
   visibility: hidden;
