@@ -1,0 +1,30 @@
+.button {
+  background-color: #38b6ff;
+  color: white;
+  padding: 4px;
+  margin-top: 8px;
+  user-select: none;
+  height: 22px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.button:hover {
+  cursor: pointer;
+}
+
+.button:active {
+  background-color: #38a0ff;
+}
+
+.disableButton {
+  pointer-events: none;
+  opacity: 0.3;
+}
+
+.buttonContainer {
+  display: flex;
+  flex-direction: row;
+  margin-top: 20px;
+  margin: auto;
+}

@@ -2,9 +2,13 @@
   <div class="mainPage">
     <div class="CADContainer">
       <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
-      <div v-if="isPressureDataEmpty" class="italicText"> No Data is available. </div>
+      <div v-if="isPressureDataEmpty" class="italicText">
+        No data is available.
+      </div>
       <div class="buttonContainer">
-        <div class="button" style="width: 225px" @click="loadPressureData()">Load Pressure Data</div>
+        <div class="button" style="width: 225px" @click="loadPressureData()">
+          Load Pressure Data
+        </div>
       </div>
     </div>
     <div class="userInputCapture">
@@ -23,16 +27,23 @@
         placeholder="Data download location: "
         readonly
       />
-      <div class="button" @click="selectDownloadDirectory()">Choose File Directory</div>
-      <div :class="isDataCaptureProcessing ? 'button disableButton' : 'button'" :disabled="isDataCaptureProcessing == true" 
-      @click="readFile(selectedPath, fileName)">Capture Data</div>
-      <dotted-loading-bar v-if="isDataCaptureProcessing" class="loadingBar"/>
+      <div class="button" @click="selectDownloadDirectory()">
+        Choose File Directory
+      </div>
+      <div
+        :class="isDataCaptureProcessing ? 'button disableButton' : 'button'"
+        :disabled="isDataCaptureProcessing == true"
+        @click="readFile(selectedPath, fileName)"
+      >
+        Capture Data
+      </div>
+      <dotted-loading-bar v-if="isDataCaptureProcessing" class="loadingBar" />
     </div>
   </div>
 </template>
 
 <script>
-import DottedLoadingBar from "./DottedLoadingBar.vue"
+import DottedLoadingBar from './DottedLoadingBar.vue'
 import TextField from './TextField.vue'
 import CADViewer from './CADViewer.vue'
 
@@ -46,10 +57,10 @@ export default {
 
   data() {
     return {
-      firstName: "",
-      lastName: "",
-      selectedPath: "",
-      selectedCADFile: "",
+      firstName: '',
+      lastName: '',
+      selectedPath: '',
+      selectedCADFile: '',
       pressureData: [],
       isDataCaptureProcessing: false,
       isPressureDataEmpty: true,
@@ -60,18 +71,17 @@ export default {
     // handle reply from the backend
     //This is remounted every single time mainPage re-renders.
     //This acts as a subscription, so you can accidentally attach multiple listeners if page re-renders.
-    window.ipc.on("CAPTURE_DATA", (payload) => {
-      console.log(payload.content);
+    window.ipc.on('CAPTURE_DATA', (payload) => {
       this.isDataCaptureProcessing = false //data capture is complete
-    });
+    })
 
     window.ipc.on('GET_FILE_LOCATION', (payload) => {
       this.selectedPath = payload.content
     })
 
-    window.ipc.on("OPEN_SELECTED_FILE", (payload) => {
-        this.selectedCADFile = payload.content
-    });
+    window.ipc.on('OPEN_SELECTED_FILE', (payload) => {
+      this.selectedCADFile = payload.content
+    })
 
     window.ipc.on('LOAD_PRESSURE_DATA', (payload) => {
       this.pressureData = payload.content
@@ -120,6 +130,8 @@ export default {
 </script>
 
 <style>
+@import '../assets/styles/buttonStyles.css';
+
 .mainPage {
   text-align: center;
   display: flex;
@@ -157,29 +169,6 @@ export default {
   outline: none;
 }
 
-.button {
-  background-color: #38b6ff;
-  color: white;
-  padding: 4px;
-  margin-top: 8px;
-  user-select: none;
-  height: 22px;
-  text-align: center;
-  font-size: 18px;
-}
-
-.disableButton {
-  pointer-events: none;
-  opacity: 0.3;
-}
-
-.buttonContainer {
-  display: flex;
-  flex-direction: row;
-  margin-top: 20px;
-  margin: auto;
-}
-
 .userInputCapture {
   justify-content: center;
   display: flex;
@@ -189,19 +178,11 @@ export default {
   margin-left: 20px;
 }
 
-.button:hover {
-  cursor: pointer;
-}
-
 .italicText {
-    font-style: italic;
-    font-family: 'Source Sans Pro';
-    font-size: 20px;
-    color: #87949b;
-}
-
-.button:active {
-  background-color: #38a0ff;
+  font-style: italic;
+  font-family: 'Source Sans Pro';
+  font-size: 20px;
+  color: #87949b;
 }
 
 .loadingBar {
