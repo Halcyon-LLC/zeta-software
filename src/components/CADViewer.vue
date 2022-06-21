@@ -184,6 +184,11 @@ export default {
               this.PressureData[pressureNum].pressure,
             ])
             pressureNum++
+
+            // Error check for less points in CSV than promised for the type of mat
+            if (pressureNum >= this.PressureData.length - 1) {
+              break
+            }
           }
         }
       }
