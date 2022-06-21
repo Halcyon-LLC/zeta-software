@@ -33,10 +33,10 @@ export default {
       windowHeight: 500,
       canvasWidth: 450,
       canvasHeight: 250,
-      CADMeshFront: undefined,
+      CADMesh: undefined,
       CADMaterialBack: undefined,
       CADMaterialFront: undefined,
-      maxHeatIntensity: 100,
+      maxHeatIntensity: 0,
       heatBlurRadius: 20,
       heatRadius: 30,
     }
@@ -111,7 +111,7 @@ export default {
       this.camera.lookAt(0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * -0.5
-      this.CADMeshFront = this.generateMeshWithTexture(
+      this.CADMesh = this.generateMeshWithTexture(
         camera,
         result,
         'heatmapFront',
@@ -205,9 +205,9 @@ export default {
     createScene() {
       this.scene.add(this.camera)
       this.scene.add(this.light)
-      this.scene.add(this.CADMeshFront)
+      this.scene.add(this.CADMesh)
       this.renderer.setSize(this.windowWidth, this.windowHeight)
-      this.CADMeshFront.position.set(0, 0, 0)
+      this.CADMesh.position.set(0, 0, 0)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
