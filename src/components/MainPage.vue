@@ -203,7 +203,6 @@ export default {
 .loadingBar {
   margin: auto;
   margin-top: 10px;
-  height: 25px;
 }
 
 .userInputCapture {
