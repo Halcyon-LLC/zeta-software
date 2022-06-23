@@ -31,14 +31,16 @@
         Choose File Directory
       </div>
       <div
-        :class="canCaptureData ? 'button disableButton' : 'button'"
-        :disabled="canCaptureData == true"
+        :class="isDataCaptureUnavailable ? 'button disableButton' : 'button'"
+        :disabled="isDataCaptureUnavailable == true"
         @click="readFile(selectedPath, fileName)"
       >
         Capture Data
       </div>
+      <div v-if="!isDeviceConnected" class="normalText">
+        Device is not connected.
+      </div>
       <dotted-loading-bar v-if="isDataCaptureProcessing" class="loadingBar" />
-      <div class="normalText">Device is not connected.</div>
     </div>
   </div>
 </template>
@@ -65,7 +67,7 @@ export default {
       pressureData: [],
       isDataCaptureProcessing: false,
       isPressureDataEmpty: true,
-      isDeviceConnected: false, //default to false if device isnt auto conn
+      isDeviceConnected: true, //default to false if device isnt auto conn
     }
   },
 
@@ -100,8 +102,8 @@ export default {
         : ''
     },
 
-    canCaptureData() {
-      return this.isDataCaptureProcessing || !this.isDeviceConnected
+    isDataCaptureUnavailable() {
+      return !this.isDeviceConnected || this.isDataCaptureProcessing
     },
   },
 
@@ -201,6 +203,7 @@ export default {
 .loadingBar {
   margin: auto;
   margin-top: 10px;
+  height: 25px;
 }
 
 .userInputCapture {
