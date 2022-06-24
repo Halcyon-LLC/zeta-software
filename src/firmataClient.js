@@ -1,28 +1,36 @@
-function detectMCU() {
-  const { SerialPort } = require('serialport')
+const { SerialPort } = require('serialport')
 
-  let MCUPort = ''
-  SerialPort.list().then((ports) => {
-    let done = false
-    ports.forEach(function (port) {
+function scanForArduino(ports) {
+  const { waitFor } = require('wait-for-event')
+
+  return new Promise(async (resolve) => {
+    for (let port of ports) {
       let manufacturer = port.manufacturer
 
       if (
         typeof manufacturer !== 'undefined' &&
         manufacturer.includes('arduino')
       ) {
-        MCUPort = new SerialPort({ path: port.path, baudRate: 9600 })
-        MCUPort.on('open', function () {
-          console.log('connected')
+        let targetPort = new SerialPort({ path: port.path, baudRate: 9600 })
+        let portConnectionEmitter = targetPort.on('open', () => {
+          console.log('Connected to Arduino')
         })
-        done = true
-      }
-    })
 
-    if (done === false) {
-      console.log("can't find any arduino")
+        await waitFor(portConnectionEmitter)
+        resolve(true)
+      }
     }
+    resolve(false)
   })
+}
+
+async function detectMCU() {
+  let connected = false
+
+  while (!connected) {
+    let ports = await SerialPort.list()
+    connected = await scanForArduino(ports)
+  }
 }
 
 function captureData(payload) {
