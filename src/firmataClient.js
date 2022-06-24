@@ -1,35 +1,33 @@
 const { SerialPort } = require('serialport')
 
-function scanForArduino(ports) {
-  const { waitFor } = require('wait-for-event')
+function getMCUPort(ports) {
+  for (let port of ports) {
+    let manufacturer = port.manufacturer
 
-  return new Promise(async (resolve) => {
-    for (let port of ports) {
-      let manufacturer = port.manufacturer
-
-      if (
-        typeof manufacturer !== 'undefined' &&
-        manufacturer.includes('arduino')
-      ) {
-        let targetPort = new SerialPort({ path: port.path, baudRate: 9600 })
-        let portConnectionEmitter = targetPort.on('open', () => {
-          console.log('Connected to Arduino')
-        })
-
-        await waitFor(portConnectionEmitter)
-        resolve(true)
-      }
+    if (
+      typeof manufacturer !== 'undefined' &&
+      manufacturer.includes('arduino')
+    ) {
+      return new SerialPort({ path: port.path, baudRate: 9600 })
     }
-    resolve(false)
-  })
+  }
 }
 
-async function detectMCU() {
+async function connectToMCU() {
+  const { waitFor } = require('wait-for-event')
   let connected = false
 
   while (!connected) {
     let ports = await SerialPort.list()
-    connected = await scanForArduino(ports)
+    let MCUPort = getMCUPort(ports)
+
+    if (MCUPort) {
+      let portConnectionEmitter = MCUPort.on('open', () => {
+        console.log('MCU connected')
+      })
+
+      connected = await waitFor(portConnectionEmitter)
+    }
   }
 }
 
@@ -79,4 +77,4 @@ function getDestination(payload) {
   return path.join(destination, fileName)
 }
 
-module.exports = { detectMCU, captureData }
+module.exports = { connectToMCU, captureData }
