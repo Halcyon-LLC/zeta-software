@@ -9,7 +9,7 @@ const path = require('path')
 const fs = require('fs')
 const { ipcMain } = require('electron')
 const electron = require('electron')
-const firmataClient = require('./firmataClient.js')
+const firmwareInterface = require('./firmwareInterface.js')
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
@@ -78,7 +78,7 @@ app.on('ready', async () => {
 ipcMain.on('CONNECT_MCU', async (event) => {
   let connected = false
   try {
-    await firmataClient.connectToMCU()
+    await firmwareInterface.connectToMCU()
     connected = true
   } catch (err) {
     console.error(err)
@@ -91,7 +91,7 @@ ipcMain.on('CAPTURE_DATA', async (event, payload) => {
   let message = ''
   try {
     var start = performance.now()
-    message = await firmataClient.captureData(payload)
+    message = await firmwareInterface.captureData(payload)
     var end = performance.now()
     console.log(`${end - start} milliseconds`)
   } catch (err) {
