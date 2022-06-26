@@ -1,6 +1,9 @@
-const { SerialPort } = require('serialport')
+const MCUStatus = {
+  connected: true,
+  disconnected: false,
+}
 
-function getMCUPort(ports) {
+function isMCUInPorts(ports) {
   if (ports.length === 0) {
     throw ReferenceError('Serial port list is empty')
   }
@@ -12,35 +15,28 @@ function getMCUPort(ports) {
       typeof manufacturer !== 'undefined' &&
       manufacturer.includes('arduino')
     ) {
-      return new SerialPort({ path: port.path, baudRate: 9600 })
+      return true
     }
   }
+  return false
 }
 
-function connectToMCU() {
-  return new Promise(async (resolve, reject) => {
-    const { waitFor } = require('wait-for-event')
-    let connected = false
+function isMCU(status) {
+  const { SerialPort } = require('serialport')
 
-    while (!connected) {
+  return new Promise(async (resolve, reject) => {
+    while (true) {
       try {
         let ports = await SerialPort.list()
-        let MCUPort = getMCUPort(ports)
-
-        if (MCUPort) {
-          let portConnectionEmitter = MCUPort.on('open', () => {
-            connected = true
-          })
-          await waitFor('open', portConnectionEmitter, () => {
-            MCUPort.close()
-          })
+        if (isMCUInPorts(ports) === status) {
+          break
         }
       } catch (e) {
         reject(e)
       }
     }
 
-    resolve('MCU connected')
+    resolve()
   })
 }
 
@@ -90,4 +86,8 @@ function getDestination(payload) {
   return path.join(destination, fileName)
 }
 
-module.exports = { connectToMCU, captureData }
+module.exports = {
+  MCUStatus,
+  isMCU,
+  captureData,
+}
