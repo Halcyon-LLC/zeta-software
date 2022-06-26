@@ -105,7 +105,7 @@ ipcMain.on('CAPTURE_DATA', async (event, payload) => {
   event.reply('CAPTURE_DATA', { content: message })
 })
 
-ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
+ipcMain.on('GET_FILE_LOCATION', async (event) => {
   let selectedPath = ''
 
   const { canceled, filePaths } = await electron.dialog.showOpenDialog({
@@ -119,15 +119,15 @@ ipcMain.on('GET_FILE_LOCATION', async (event, payload) => {
   event.reply('GET_FILE_LOCATION', { content: selectedPath })
 })
 
-ipcMain.on('OPEN_SELECTED_FILE', async (event, payload) => {
+ipcMain.on('OPEN_SELECTED_FILE', async (event) => {
   let selectedPath = path.join(__static, './CADFiles', 'MaleKidTorso.obj')
-  console.log(selectedPath)
+  console.log(`CAD model loaded from ${selectedPath}`)
 
   const fileContent = fs.readFileSync(selectedPath).toString()
   event.reply('OPEN_SELECTED_FILE', { content: fileContent })
 })
 
-ipcMain.on('LOAD_PRESSURE_DATA', async (event, payload) => {
+ipcMain.on('LOAD_PRESSURE_DATA', async (event) => {
   let selectedPath = ''
   const parse = require('csv-parser')
 
@@ -149,12 +149,11 @@ ipcMain.on('LOAD_PRESSURE_DATA', async (event, payload) => {
       pressureArray.push(row)
     })
     .on('end', function () {
-      console.log('finished')
-      console.log(pressureArray)
+      console.log('Finished loading pressure values')
       event.reply('LOAD_PRESSURE_DATA', { content: pressureArray })
     })
     .on('error', function (error) {
-      console.log(error.message)
+      console.error(error.message)
     })
 })
 
