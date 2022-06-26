@@ -1,6 +1,10 @@
 const { SerialPort } = require('serialport')
 
 function getMCUPort(ports) {
+  if (ports.length === 0) {
+    throw ReferenceError('Serial port list is empty')
+  }
+
   for (let port of ports) {
     let manufacturer = port.manufacturer
 
@@ -13,22 +17,31 @@ function getMCUPort(ports) {
   }
 }
 
-async function connectToMCU() {
-  const { waitFor } = require('wait-for-event')
-  let connected = false
+function connectToMCU() {
+  return new Promise(async (resolve, reject) => {
+    const { waitFor } = require('wait-for-event')
+    let connected = false
 
-  while (!connected) {
-    let ports = await SerialPort.list()
-    let MCUPort = getMCUPort(ports)
+    while (!connected) {
+      try {
+        let ports = await SerialPort.list()
+        let MCUPort = getMCUPort(ports)
 
-    if (MCUPort) {
-      let portConnectionEmitter = MCUPort.on('open', () => {
-        console.log('MCU connected')
-      })
-
-      connected = await waitFor(portConnectionEmitter)
+        if (MCUPort) {
+          let portConnectionEmitter = MCUPort.on('open', () => {
+            connected = true
+          })
+          await waitFor('open', portConnectionEmitter, () => {
+            MCUPort.close()
+          })
+        }
+      } catch (e) {
+        reject(e)
+      }
     }
-  }
+
+    resolve('MCU connected')
+  })
 }
 
 function captureData(payload) {

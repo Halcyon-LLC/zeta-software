@@ -75,20 +75,25 @@ app.on('ready', async () => {
   createWindow()
 })
 
-ipcMain.on('DETECT_MCU', async (event) => {
-  let boardStatus = false // TODO: make enum?
+ipcMain.on('CONNECT_MCU', async (event) => {
+  let connected = false
   try {
-    boardStatus = await firmatClient.detectMCU()
+    await firmataClient.connectToMCU()
+    connected = true
   } catch (err) {
-    console.log
+    console.error(err)
   }
-  event.reply('DETECT_MCU', { content: boardStatus })
+
+  event.reply('DETECT_MCU', { content: connected })
 })
 
 ipcMain.on('CAPTURE_DATA', async (event, payload) => {
   let message = ''
   try {
+    var start = performance.now()
     message = await firmataClient.captureData(payload)
+    var end = performance.now()
+    console.log(`${end - start} milliseconds`)
   } catch (err) {
     // TODO: alert('Data capture failed')
     message = err
