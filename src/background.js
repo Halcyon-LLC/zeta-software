@@ -75,16 +75,20 @@ app.on('ready', async () => {
   createWindow()
 })
 
-ipcMain.on('CONNECT_MCU', async (event) => {
-  let connected = false
-  try {
-    await firmwareInterface.connectToMCU()
-    connected = true
-  } catch (err) {
-    console.error(err)
-  }
+ipcMain.on('MCU_CONNECTION_CHECK', async (event) => {
+  while (true) {
+    try {
+      console.log('Waiting to connect to MCU')
+      await firmwareInterface.isMCU(firmwareInterface.MCUStatus.connected)
+      event.reply('MCU_CONNECTION_CHECK', { connected: true })
 
-  event.reply('DETECT_MCU', { content: connected })
+      console.log('Watching for MCU disconnection')
+      await firmwareInterface.isMCU(firmwareInterface.MCUStatus.disconnected)
+      event.reply('MCU_CONNECTION_CHECK', { connected: false })
+    } catch (err) {
+      console.error(err)
+    }
+  }
 })
 
 ipcMain.on('CAPTURE_DATA', async (event, payload) => {
