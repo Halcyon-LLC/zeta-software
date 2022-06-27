@@ -78,7 +78,7 @@ app.on('ready', async () => {
 ipcMain.on('MCU_CONNECTION_CHECK', async (event) => {
   while (true) {
     try {
-      console.log('Waiting to connect to MCU')
+      console.log('Waiting for MCU connection')
       await firmwareInterface.isMCU(firmwareInterface.MCUStatus.connected)
       event.reply('MCU_CONNECTION_CHECK', { connected: true })
 
