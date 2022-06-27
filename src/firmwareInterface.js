@@ -1,3 +1,45 @@
+const MCUStatus = {
+  connected: true,
+  disconnected: false,
+}
+
+function isMCUInPorts(ports) {
+  if (ports.length === 0) {
+    throw ReferenceError('Serial port list is empty')
+  }
+
+  for (let port of ports) {
+    let manufacturer = port.manufacturer
+
+    if (
+      typeof manufacturer !== 'undefined' &&
+      manufacturer.includes('arduino')
+    ) {
+      return true
+    }
+  }
+  return false
+}
+
+function isMCU(status) {
+  const { SerialPort } = require('serialport')
+
+  return new Promise(async (resolve, reject) => {
+    while (true) {
+      try {
+        let ports = await SerialPort.list()
+        if (isMCUInPorts(ports) === status) {
+          break
+        }
+      } catch (e) {
+        reject(e)
+      }
+    }
+
+    resolve()
+  })
+}
+
 function captureData(payload) {
   return new Promise((resolve, reject) => {
     const { PythonShell } = require('python-shell')
@@ -44,4 +86,8 @@ function getDestination(payload) {
   return path.join(destination, fileName)
 }
 
-module.exports = { captureData }
+module.exports = {
+  MCUStatus,
+  isMCU,
+  captureData,
+}

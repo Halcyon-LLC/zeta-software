@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron')
 
 const validChannels = [
+  'MCU_CONNECTION_CHECK',
   'CAPTURE_DATA',
   'WRITE_FILE',
   'GET_FILE_LOCATION',
