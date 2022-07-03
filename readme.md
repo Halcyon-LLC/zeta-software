@@ -7,92 +7,39 @@
     I believe you don't have to install any of the recommended extensions, but you will most likely want to have the
     python extension. Everything else is just nice to have.
 
-2. Install pyenv
+2. Install pre-commit and configure it using `.pre-commit-config.yaml`
 
-    For windows users
-    1. [Install and enable Linux subsystem](https://ubuntu.com/wsl)
-    2. In your Linux terminal, execute `curl https://pyenv.run | bash`
-    3. Add the following to your .bashrc
+    **TLDR**
 
-        ```bash
-        export PATH="$HOME/.pyenv/bin:$PATH"
-        eval "$(pyenv init --path)"
-        eval "$(pyenv virtualenv-init -)"
-        ```
-
-    4. Restart your shell
-
-    For mac users
-    1. `brew install pyenv`
-    2. Add the following to your .zshrc( or .bashrc)
-
-        ```bash
-        export PATH="$HOME/.pyenv/bin:$PATH"
-        eval "$(pyenv init --path)"
-        eval "$(pyenv virtualenv-init -)"
-        ```
-
-    3. Restart your shell or execute `source .zshrc`
-
-3. Install poetry
-
-    For windows users
-    1. Install and enable Linux subsystem
-    2. In your Linux terminal, execute `curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python`
-    3. Add the following to your .bashrc
-
-        ```bash
-        export PATH="$HOME/.poetry/bin:$PATH"
-        ```
-
-    4. Restart your shell
-
-    For mac users
-    1. `brew install poetry`
-    2. Done
-
-4. Install pre-commit and configure it using `.pre-commit-condig.yaml`
-
-    **All together now**
-
-    ```bash
+    ```shell
     cd <path_to_zeta_software_repository>
     pyenv install 3.8.12
-    python -m venv .venv
-    poetry install && poetry shell
+    pip install pre-commit
     pre-commit install
     ```
 
-    You have to choose what python version management tool and dependency management tool use, but **pyenv** and
-    **poetry** are recommended. This instruction is going to assume you are using pyenv and poetry.\
+    You have to choose what python version management tool to use, but **pyenv** is recommended.
+    This instruction is going to assume you are using pyenv and pip.\
     Once you have pyenv, install python version **3.8.12** by `pyenv install 3.8.12`.\
-    *If pyenv fails to install, please ensure your meet the [system requirements](https://github.com/pyenv/pyenv/wiki#suggested-build-environment).*\
-    Then create a python virtual environment by `python -m venv .venv`.
-    Make sure your virtual environment is using python 3.8.12 and your file structure should look like the following.
+    Then install **pre-commit** by `pip install pre-commit`, and configure it by `pre-commit install`.
 
-    ```file structure
-    .
-    ├── .gitignore
-    ├── .pre-commit-condig.yaml
-    ├── .python-version
-    ├── poetry.lock
-    ├── pyproject.toml
-    ├── readme.md
-    ├── .venv <-------------------- You just created this.
-    │   └── pyvenv.cfg <----------- Make sure this says "version = 3.8.12" somewhere.
-    ├── .vscode
-    ├── tests
-    │   ├── __init__.py
-    │   ├── __pycache__
-    │   └── test_zeta.py
-    └── zeta
-        ├── __init__.py
-        └── __pycache__
-    ```
+## Commands
 
-    After that we will use poetry to install python packages, using the command `poetry install && poetry shell`.
-    Now if there are no errors, you should be in the python virtual environment that was created earlier.\
-    Finally, install configure pre-commit by `pre-commit install`.
+### Project setup, install npm packages based on package-lock.json
+
+```shell
+npm ci
+```
+
+### Compiles Vue without Electron and hot-reloads for development
+
+```shell
+npm run electron:serve
+```
+
+### Customize Vue configuration
+
+See [Configuration Reference](https://cli.vuejs.org/config/).
 
 ## Contributors
 
