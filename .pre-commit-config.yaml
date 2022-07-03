@@ -41,3 +41,13 @@ repos:
         entry: pflake8
         language: system
         types: [python]
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.6.1
+    hooks:
+      - id: prettier
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.12.0
+    hooks:
+      - id: eslint

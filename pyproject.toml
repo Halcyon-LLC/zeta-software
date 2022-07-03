@@ -3,11 +3,13 @@
 name = "zeta"
 version = "0.1.0"
 description = "Software for project zeta"
-authors = ["Aki Zhou", "Roy Ataya"]
+authors = []
 
 [tool.poetry.dependencies]
-python = "^3.8.12"
-numpy = "^1.22.2"
+python = "^3.7.13"
+pyFirmata2 = "^2.4.2"
+click = "^8.1.2"
+numpy = "1.21.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.0.1"
