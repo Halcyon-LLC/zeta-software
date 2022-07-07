@@ -37,8 +37,8 @@ export default {
       CADMaterialBack: undefined,
       CADMaterialFront: undefined,
       maxHeatIntensity: 0,
-      heatBlurRadius: 20,
-      heatRadius: 30,
+      heatBlurRadius: 15,
+      heatRadius: 20,
     }
   },
 
@@ -115,8 +115,8 @@ export default {
         camera,
         result,
         'heatmapFront',
-        4,
-        8
+        8, //num cols in front, left side heatmap
+        32 //num of rows in front, left side heatmap
       )
 
       // // Moving camera back to ideal distance from torso
@@ -176,6 +176,7 @@ export default {
       if (this.PressureData.length > 0) {
         // Read in the pressure data populating the canvasWidth (450 wide) col by col then row by row
         let pressureNum = 0
+        console.log(numRows, numCols)
         for (let row = 1; row <= numRows; row++) {
           for (let col = 1; col <= numCols; col++) {
             heat.add([
