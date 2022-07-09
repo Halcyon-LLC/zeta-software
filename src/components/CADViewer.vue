@@ -6,6 +6,7 @@
     <canvas id="heatmapFrontRight" width="450" height="250" class="heatMap" />
     <canvas id="heatmapBackLeft" width="450" height="250" class="heatMap" />
     <canvas id="heatmapBackRight" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapBackTop" width="450" height="250" class="heatMap" />
   </div>
 </template>
 
@@ -39,6 +40,7 @@ export default {
       CADMeshFrontRight: undefined,
       CADMeshBackLeft: undefined,
       CADMeshBackRight: undefined,
+      CADMeshBackTop: undefined,
       maxHeatIntensity: 0,
       heatBlurRadius: 30,
       heatRadius: 35,
@@ -110,17 +112,18 @@ export default {
       const FRONT_LEFT_PROJECTION_POS = 1.2
       const FRONT_RIGHT_PROJECTION_POS = -1.2
       const BACK_LEFT_PROJECTION_POS = 1.3
-      const BACK_RIGHT_PROJECTION_POS = -1.2
+      const BACK_RIGHT_PROJECTION_POS = -1.3
+      const BACK_TOP_PROJECTION_POS = -0.1
 
       const FRONT_Z_PROJECTION_POSITION = 1.85
-      const BACK_Z_PROJECTION_POSITION = -0.7
+      const BACK_Z_PROJECTION_POSITION = -0.62
 
       this.camera.position = new THREE.Vector3(
         FRONT_RIGHT_PROJECTION_POS,
         0,
         FRONT_Z_PROJECTION_POSITION
       )
-      this.camera.lookAt(-0.05, 0, 0)
+      this.camera.lookAt(0.05, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
       console.log(this.camera.rotation)
@@ -137,7 +140,7 @@ export default {
         0,
         FRONT_Z_PROJECTION_POSITION
       )
-      this.camera.lookAt(0.05, 0, 0)
+      this.camera.lookAt(0.0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshFrontLeft = this.generateMeshWithTexture(
@@ -148,34 +151,46 @@ export default {
         8
       )
 
-      // this.camera.position = new THREE.Vector3(
-      //   BACK_RIGHT_PROJECTION_POS,
-      //   0,
-      //   BACK_Z_PROJECTION_POSITION
-      // )
-      // this.camera.lookAt(0.05, 0, 0)
-      // // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
-      // this.camera.rotation.z = Math.PI * 0.5
-      // this.CADMeshBackRight = this.generateMeshWithTexture(
-      //   camera,
-      //   result,
-      //   'heatmapBackRight',
-      //   4,
-      //   8
-      // )
+      this.camera.position = new THREE.Vector3(
+        BACK_RIGHT_PROJECTION_POS,
+        0,
+        BACK_Z_PROJECTION_POSITION
+      )
+      this.camera.lookAt(-0.95, 0, 0)
+      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
+      this.camera.rotation.z = Math.PI * 0.5
+      this.CADMeshBackRight = this.generateMeshWithTexture(
+        camera,
+        result,
+        'heatmapBackRight',
+        4,
+        8
+      )
 
       this.camera.position = new THREE.Vector3(
         BACK_LEFT_PROJECTION_POS,
-        -0.5,
+        0,
         BACK_Z_PROJECTION_POSITION
       )
-      this.camera.lookAt(1.0, 0, 0)
+      this.camera.lookAt(0.95, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshBackLeft = this.generateMeshWithTexture(
         camera,
         result,
         'heatmapBackLeft',
+        4,
+        8
+      )
+
+      this.camera.position = new THREE.Vector3(0, 0.5, 0)
+      this.camera.lookAt(0, 0.5, 0)
+      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
+      this.camera.rotation.z = 0
+      this.CADMeshBackTop = this.generateMeshWithTexture(
+        camera,
+        result,
+        'heatmapBackTop',
         4,
         8
       )
@@ -277,22 +292,25 @@ export default {
       this.scene.add(this.CADMeshFrontLeft)
       this.scene.add(this.CADMeshFrontRight)
       this.scene.add(this.CADMeshBackLeft)
-      // this.scene.add(this.CADMeshBackRight)
+      this.scene.add(this.CADMeshBackRight)
+      this.scene.add(this.CADMeshBackTop)
 
       this.renderer.setSize(this.windowWidth, this.windowHeight)
 
-      this.CADMeshFrontLeft.position.set(X_POS_FRONT_LEFT_OFFSET, 0, 0)
-      this.CADMeshFrontRight.position.set(X_POS_FRONT_RIGHT_OFFSET, 0, 0)
+      this.CADMeshFrontLeft.position.set(X_POS_FRONT_LEFT_OFFSET, 0, 0.1)
+      this.CADMeshFrontRight.position.set(X_POS_FRONT_RIGHT_OFFSET, 0, 0.1)
       this.CADMeshBackLeft.position.set(
         X_POS_BACK_LEFT_OFFSET,
         0,
         Z_POS_BACK_OFFSET
       )
-      // this.CADMeshBackRight.position.set(
-      //   X_POS_BACK_RIGHT_OFFSET,
-      //   0,
-      //   Z_POS_BACK_OFFSET
-      // )
+      this.CADMeshBackRight.position.set(
+        X_POS_BACK_RIGHT_OFFSET,
+        0,
+        Z_POS_BACK_OFFSET
+      )
+      this.CADMeshBackTop.position.set(0, 0, -0.01)
+      this.CADMeshBackTop.rotation.set(-Math.PI / 128, 0, 0)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
