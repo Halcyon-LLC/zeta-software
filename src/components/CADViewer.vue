@@ -2,8 +2,10 @@
   <div>
     <div class="button buttonSpacing" @click="resetCamera()">Reset View</div>
     <div ref="canvas" class="CADViewer" />
-    <canvas id="heatmapFront" width="450" height="250" class="heatMap" />
-    <canvas id="heatmapBack" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapFrontLeft" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapFrontRight" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapBackLeft" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapBackRight" width="450" height="250" class="heatMap" />
   </div>
 </template>
 
@@ -33,12 +35,14 @@ export default {
       windowHeight: 500,
       canvasWidth: 450,
       canvasHeight: 250,
-      CADMesh: undefined,
-      CADMaterialBack: undefined,
-      CADMaterialFront: undefined,
+      CADMeshFrontLeft: undefined,
+      CADMeshFrontRight: undefined,
+      CADMeshBackLeft: undefined,
+      CADMeshBackRight: undefined,
       maxHeatIntensity: 0,
-      heatBlurRadius: 20,
-      heatRadius: 30,
+      heatBlurRadius: 30,
+      heatRadius: 35,
+      coordinateAxes: undefined,
     }
   },
 
@@ -95,26 +99,83 @@ export default {
       cameraZ *= Z_ZOOM_SCALE // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
 
+      this.coordinateAxes = new THREE.AxesHelper(1.5)
       /*
         For each projection, we create a new mesh which has the canvas projected onto it's material
         Thus, the only thing we need to alter before creating a mesh, is move the camera to the specified
         location you want to project the texture from
       */
-      const LEFT_CHEST_PROJECTION_DISTANCE = 1.2
-      const FRONT_CHEST_PROJECTION_DISTANCE = 1.85
+      // LEFT/RIGHT/BACK is from the perspective of the patient
+      // Global coordinate system is from the perspective of the patient
+      const FRONT_LEFT_PROJECTION_POS = 1.2
+      const FRONT_RIGHT_PROJECTION_POS = -1.2
+      const BACK_LEFT_PROJECTION_POS = 1.3
+      const BACK_RIGHT_PROJECTION_POS = -1.2
+
+      const FRONT_Z_PROJECTION_POSITION = 1.85
+      const BACK_Z_PROJECTION_POSITION = -0.7
 
       this.camera.position = new THREE.Vector3(
-        LEFT_CHEST_PROJECTION_DISTANCE,
+        FRONT_RIGHT_PROJECTION_POS,
         0,
-        FRONT_CHEST_PROJECTION_DISTANCE
+        FRONT_Z_PROJECTION_POSITION
       )
-      this.camera.lookAt(0, 0, 0)
+      this.camera.lookAt(-0.05, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
-      this.camera.rotation.z = Math.PI * -0.5
-      this.CADMesh = this.generateMeshWithTexture(
+      this.camera.rotation.z = Math.PI * 0.5
+      console.log(this.camera.rotation)
+      this.CADMeshFrontRight = this.generateMeshWithTexture(
         camera,
         result,
-        'heatmapFront',
+        'heatmapFrontRight',
+        4,
+        8
+      )
+
+      this.camera.position = new THREE.Vector3(
+        FRONT_LEFT_PROJECTION_POS,
+        0,
+        FRONT_Z_PROJECTION_POSITION
+      )
+      this.camera.lookAt(0.05, 0, 0)
+      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
+      this.camera.rotation.z = Math.PI * 0.5
+      this.CADMeshFrontLeft = this.generateMeshWithTexture(
+        camera,
+        result,
+        'heatmapFrontLeft',
+        4,
+        8
+      )
+
+      // this.camera.position = new THREE.Vector3(
+      //   BACK_RIGHT_PROJECTION_POS,
+      //   0,
+      //   BACK_Z_PROJECTION_POSITION
+      // )
+      // this.camera.lookAt(0.05, 0, 0)
+      // // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
+      // this.camera.rotation.z = Math.PI * 0.5
+      // this.CADMeshBackRight = this.generateMeshWithTexture(
+      //   camera,
+      //   result,
+      //   'heatmapBackRight',
+      //   4,
+      //   8
+      // )
+
+      this.camera.position = new THREE.Vector3(
+        BACK_LEFT_PROJECTION_POS,
+        -0.5,
+        BACK_Z_PROJECTION_POSITION
+      )
+      this.camera.lookAt(1.0, 0, 0)
+      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
+      this.camera.rotation.z = Math.PI * 0.5
+      this.CADMeshBackLeft = this.generateMeshWithTexture(
+        camera,
+        result,
+        'heatmapBackLeft',
         4,
         8
       )
@@ -203,11 +264,35 @@ export default {
     },
 
     createScene() {
+      // From perspective of patient which is also the perspective of the global coordinate system
+      const X_POS_FRONT_LEFT_OFFSET = 0.01
+      const X_POS_FRONT_RIGHT_OFFSET = -0.01
+      const X_POS_BACK_LEFT_OFFSET = 0.01
+      const X_POS_BACK_RIGHT_OFFSET = -0.01
+      const Z_POS_BACK_OFFSET = -0.01
+
+      this.scene.add(this.coordinateAxes)
       this.scene.add(this.camera)
       this.scene.add(this.light)
-      this.scene.add(this.CADMesh)
+      this.scene.add(this.CADMeshFrontLeft)
+      this.scene.add(this.CADMeshFrontRight)
+      this.scene.add(this.CADMeshBackLeft)
+      // this.scene.add(this.CADMeshBackRight)
+
       this.renderer.setSize(this.windowWidth, this.windowHeight)
-      this.CADMesh.position.set(0, 0, 0)
+
+      this.CADMeshFrontLeft.position.set(X_POS_FRONT_LEFT_OFFSET, 0, 0)
+      this.CADMeshFrontRight.position.set(X_POS_FRONT_RIGHT_OFFSET, 0, 0)
+      this.CADMeshBackLeft.position.set(
+        X_POS_BACK_LEFT_OFFSET,
+        0,
+        Z_POS_BACK_OFFSET
+      )
+      // this.CADMeshBackRight.position.set(
+      //   X_POS_BACK_RIGHT_OFFSET,
+      //   0,
+      //   Z_POS_BACK_OFFSET
+      // )
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
