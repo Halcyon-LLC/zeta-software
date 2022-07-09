@@ -113,7 +113,7 @@ export default {
       const FRONT_RIGHT_PROJECTION_POS = -1.2
       const BACK_LEFT_PROJECTION_POS = 1.3
       const BACK_RIGHT_PROJECTION_POS = -1.3
-      const BACK_TOP_PROJECTION_POS = -0.1
+      const BACK_TOP_PROJECTION_POS = -1.37
 
       const FRONT_Z_PROJECTION_POSITION = 1.85
       const BACK_Z_PROJECTION_POSITION = -0.62
@@ -183,8 +183,8 @@ export default {
         8
       )
 
-      this.camera.position = new THREE.Vector3(0, 0.5, 0)
-      this.camera.lookAt(0, 0.5, 0)
+      this.camera.position = new THREE.Vector3(0, 1.5, BACK_TOP_PROJECTION_POS)
+      this.camera.lookAt(0, 1.5, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = 0
       this.CADMeshBackTop = this.generateMeshWithTexture(
@@ -195,9 +195,8 @@ export default {
         8
       )
 
-      // // Moving camera back to ideal distance from torso
+      // Moving camera back to ideal distance from torso
       this.camera.position = new THREE.Vector3(0, 0, cameraZ)
-
       this.createScene()
       this.startAnimation()
     },
@@ -285,6 +284,7 @@ export default {
       const X_POS_BACK_LEFT_OFFSET = 0.01
       const X_POS_BACK_RIGHT_OFFSET = -0.01
       const Z_POS_BACK_OFFSET = -0.01
+      const Z_POS_FRONT_OFFSET = 0.1
 
       this.scene.add(this.coordinateAxes)
       this.scene.add(this.camera)
@@ -297,8 +297,16 @@ export default {
 
       this.renderer.setSize(this.windowWidth, this.windowHeight)
 
-      this.CADMeshFrontLeft.position.set(X_POS_FRONT_LEFT_OFFSET, 0, 0.1)
-      this.CADMeshFrontRight.position.set(X_POS_FRONT_RIGHT_OFFSET, 0, 0.1)
+      this.CADMeshFrontLeft.position.set(
+        X_POS_FRONT_LEFT_OFFSET,
+        0,
+        Z_POS_FRONT_OFFSET
+      )
+      this.CADMeshFrontRight.position.set(
+        X_POS_FRONT_RIGHT_OFFSET,
+        0,
+        Z_POS_FRONT_OFFSET
+      )
       this.CADMeshBackLeft.position.set(
         X_POS_BACK_LEFT_OFFSET,
         0,
@@ -309,8 +317,8 @@ export default {
         0,
         Z_POS_BACK_OFFSET
       )
-      this.CADMeshBackTop.position.set(0, 0, -0.01)
-      this.CADMeshBackTop.rotation.set(-Math.PI / 128, 0, 0)
+      this.CADMeshBackTop.position.set(0, 0, Z_POS_BACK_OFFSET)
+      this.CADMeshBackTop.rotation.set(-Math.PI / 512, 0, 0)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
