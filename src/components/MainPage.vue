@@ -9,6 +9,7 @@
         <div class="button" style="width: 225px" @click="loadPressureData()">
           Load Pressure Data
         </div>
+        <div class="heatMapLegend" />
       </div>
     </div>
     <div class="userInputCapture">
@@ -218,5 +219,18 @@ export default {
   text-align: center;
   flex-direction: column;
   margin-left: 20px;
+}
+
+.heatMapLegend {
+  width: 400px;
+  height: 30px;
+  background: linear-gradient(
+    to right,
+    red 20%,
+    orange 20% 40%,
+    yellow 40% 60%,
+    green 60% 80%,
+    blue 80%
+  );
 }
 </style>
