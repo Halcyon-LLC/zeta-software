@@ -190,6 +190,9 @@ export default {
 
       this.camera.position = new THREE.Vector3(0, 1.5, BACK_TOP_PROJECTION_POS)
       this.camera.lookAt(0, 1.5, 0)
+      // update for the back mat, as it has the least data
+      this.heatBlurRadius = 30
+      this.heatRadius = 36
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = 0
       this.CADMeshBackTop = this.generateMeshWithTexture(
