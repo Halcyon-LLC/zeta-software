@@ -42,8 +42,8 @@ export default {
       CADMeshBackRight: undefined,
       CADMeshBackTop: undefined,
       maxHeatIntensity: 0,
-      heatBlurRadius: 10,
-      heatRadius: 16,
+      defaultHeatBlur: 10,
+      defaultHeatRadius: 16,
       coordinateAxes: undefined,
     }
   },
@@ -127,7 +127,7 @@ export default {
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
 
-      this.CADMeshFrontRight = this.generateMeshWithTexture(
+      this.CADMeshFrontRight = this.generateMeshWithHeatMapTexture(
         camera,
         result,
         'heatmapFrontRight',
@@ -144,7 +144,7 @@ export default {
       this.camera.lookAt(0.0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
-      this.CADMeshFrontLeft = this.generateMeshWithTexture(
+      this.CADMeshFrontLeft = this.generateMeshWithHeatMapTexture(
         camera,
         result,
         'heatmapFrontLeft',
@@ -161,7 +161,7 @@ export default {
       this.camera.lookAt(-0.95, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
-      this.CADMeshBackRight = this.generateMeshWithTexture(
+      this.CADMeshBackRight = this.generateMeshWithHeatMapTexture(
         camera,
         result,
         'heatmapBackRight',
@@ -179,7 +179,7 @@ export default {
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
       console.log(this.pressureData)
-      this.CADMeshBackLeft = this.generateMeshWithTexture(
+      this.CADMeshBackLeft = this.generateMeshWithHeatMapTexture(
         camera,
         result,
         'heatmapBackLeft',
@@ -195,13 +195,15 @@ export default {
       this.heatRadius = 36
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = 0
-      this.CADMeshBackTop = this.generateMeshWithTexture(
+      this.CADMeshBackTop = this.generateMeshWithHeatMapTexture(
         camera,
         result,
         'heatmapBackTop',
         4,
         8,
-        this.pressureData ? this.pressureData.backMatData : undefined
+        this.pressureData ? this.pressureData.backMatData : undefined,
+        36,
+        36
       )
 
       // Moving camera back to ideal distance from torso
@@ -210,16 +212,25 @@ export default {
       this.startAnimation()
     },
 
-    generateMeshWithTexture(
+    generateMeshWithHeatMapTexture(
       camera,
       CADModel,
       canvasID,
       numRows,
       numCols,
-      selectedMat
+      selectedMat,
+      heatRadius = this.defaultHeatRadius,
+      heatBlur = this.defaultHeatBlur
     ) {
       // Projecting the heatmap onto the CAD model
-      this.initHeatMap(canvasID, numRows, numCols, selectedMat)
+      this.initHeatMap(
+        canvasID,
+        numRows,
+        numCols,
+        selectedMat,
+        heatRadius,
+        heatBlur
+      )
       var texture = new THREE.CanvasTexture(document.getElementById(canvasID))
 
       // You can pass any option that belongs to MeshPhysicalMaterial
@@ -251,7 +262,7 @@ export default {
       this.renderer.render(this.scene, this.camera)
     },
 
-    initHeatMap(canvasID, numRows, numCols, selectedMat) {
+    initHeatMap(canvasID, numRows, numCols, selectedMat, heatRadius, heatBlur) {
       // Finding the max pressure val
       // for (let dataIdx = 0; dataIdx < selectedMat.length; dataIdx++) {
       //   this.maxHeatIntensity = Math.max(
@@ -264,7 +275,7 @@ export default {
       // Setting heatmap parameters
       let heat = simpleheat(canvasID)
       heat.max(this.maxHeatIntensity)
-      heat.radius(this.heatRadius, this.heatBlurRadius)
+      heat.radius(heatRadius, heatBlur)
 
       if (selectedMat && selectedMat.length > 0) {
         // Read in the pressure data populating the canvasWidth (450 wide) col by col then row by row
