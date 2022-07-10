@@ -9,6 +9,11 @@
         <div class="button" style="width: 225px" @click="loadPressureData()">
           Load Pressure Data
         </div>
+        <div class="heatMapLegend" />
+        <div class="legendTextContainer">
+          <div class="legendLeftText">0 kPa</div>
+          <div class="legendRightText">545 kPa</div>
+        </div>
       </div>
     </div>
     <div class="userInputCapture">
@@ -160,8 +165,8 @@ export default {
   display: flex;
   width: 600px;
   text-align: center;
+  align-items: center;
   flex-direction: column;
-  margin-left: 20px;
 }
 
 .textField {
@@ -218,5 +223,41 @@ export default {
   text-align: center;
   flex-direction: column;
   margin-left: 20px;
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.legendTextContainer {
+  display: flex;
+  width: 400px;
+  justify-content: right;
+  flex-direction: row;
+}
+
+.legendLeftText {
+  margin: 10px auto 0 0; /* top, right, bottom, left*/
+  font-family: 'Source Sans Pro';
+  font-size: 15px;
+  color: #87949b;
+}
+
+.legendRightText {
+  margin: 10px 0 0 auto;
+  font-family: 'Source Sans Pro';
+  font-size: 15px;
+  color: #87949b;
+}
+
+.heatMapLegend {
+  width: 400px;
+  height: 30px;
+  margin-top: 15px;
+  background: linear-gradient(90deg, blue 30%, cyan, lime, yellow, red);
 }
 </style>
