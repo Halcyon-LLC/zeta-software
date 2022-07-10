@@ -1,7 +1,7 @@
 <template>
   <div class="mainPage">
     <div class="CADContainer">
-      <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
+      <CADViewer :CADFile="selectedCADFile" :pressureData="pressureData" />
       <div v-if="isPressureDataEmpty" class="italicText">
         No data is available.
       </div>
@@ -64,7 +64,7 @@ export default {
       lastName: '',
       selectedPath: '',
       selectedCADFile: '',
-      pressureData: [],
+      pressureData: undefined,
       isDataCaptureProcessing: false,
       isPressureDataEmpty: true,
       isDeviceConnected: false,
@@ -95,6 +95,7 @@ export default {
 
     window.ipc.on('LOAD_PRESSURE_DATA', (payload) => {
       this.pressureData = payload.content
+      //console.log(this.pressureData)
       this.isPressureDataEmpty = false
     })
 
