@@ -179,7 +179,7 @@ export default {
       this.camera.lookAt(0.95, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
-      console.log(this.pressureData)
+
       this.CADMeshBackLeft = this.generateMeshWithHeatMapTexture(
         camera,
         result,

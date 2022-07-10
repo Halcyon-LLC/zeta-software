@@ -155,17 +155,17 @@ ipcMain.on('LOAD_PRESSURE_DATA', async (event) => {
     .pipe(parse({ headers: false, delimiter: ','}))
     .on('data', function (row) {
 
-      if(lineNum < END_LINE_BACK_MAT) {
+      if(lineNum < END_LINE_BACK_MAT) { //get back mat, first 4 lines (4x8)
         for (var key in row) {
           if (key > COL_START_BACK_MAT && key < COL_END_BACK_MAT)
             backPressureMat.push(row[key])
         }
       }
-      else {
-        for (var key in row) {
+      else { //both left and right mat exist on the same line, separated first half left, then next being right
+        for (var key in row) { //get left mat, 16x16(row, col) in size
           if(key < COL_END_LEFT_MAT) {
             leftPressureMat.push(row[key])
-          } else {
+          } else { //on same row line, get right mat, 16x16 in size
             rightPressureMat.push(row[key])
           }
         }
