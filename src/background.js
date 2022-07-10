@@ -154,7 +154,6 @@ ipcMain.on('LOAD_PRESSURE_DATA', async (event) => {
   fs.createReadStream(selectedPath)
     .pipe(parse({ headers: false, delimiter: ','}))
     .on('data', function (row) {
-      console.log(row)
 
       if(lineNum < END_LINE_BACK_MAT) {
         for (var key in row) {
@@ -181,7 +180,7 @@ ipcMain.on('LOAD_PRESSURE_DATA', async (event) => {
         backMatData: backPressureMat,
       }
       console.log(pressureData)
-      console.log(rightPressureMat.length)
+      console.log("Right Left Back Length: ", rightPressureMat.length, leftPressureMat.length, backPressureMat.length)
       event.reply('LOAD_PRESSURE_DATA', { content: pressureData })
     })
     .on('error', function (error) {
