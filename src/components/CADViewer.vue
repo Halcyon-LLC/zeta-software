@@ -22,7 +22,7 @@ export default {
 
   props: {
     CADFile: String,
-    PressureData: Array,
+    pressureData: Object,
   },
 
   data() {
@@ -42,14 +42,14 @@ export default {
       CADMeshBackRight: undefined,
       CADMeshBackTop: undefined,
       maxHeatIntensity: 0,
-      heatBlurRadius: 30,
-      heatRadius: 35,
+      heatBlurRadius: 10,
+      heatRadius: 16,
       coordinateAxes: undefined,
     }
   },
 
   watch: {
-    PressureData() {
+    pressureData() {
       this.scene.clear() //remove everything before adding to scene
       this.renderer.clear()
       this.init()
@@ -126,13 +126,14 @@ export default {
       this.camera.lookAt(0.05, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
-      console.log(this.camera.rotation)
+
       this.CADMeshFrontRight = this.generateMeshWithTexture(
         camera,
         result,
         'heatmapFrontRight',
-        4,
-        8
+        16,
+        16,
+        this.pressureData ? this.pressureData.rightMatData : undefined
       )
 
       this.camera.position = new THREE.Vector3(
@@ -147,8 +148,9 @@ export default {
         camera,
         result,
         'heatmapFrontLeft',
-        4,
-        8
+        16,
+        16,
+        this.pressureData ? this.pressureData.leftMatData : undefined
       )
 
       this.camera.position = new THREE.Vector3(
@@ -163,8 +165,9 @@ export default {
         camera,
         result,
         'heatmapBackRight',
-        4,
-        8
+        16,
+        16,
+        this.pressureData ? this.pressureData.rightMatData : undefined
       )
 
       this.camera.position = new THREE.Vector3(
@@ -175,12 +178,14 @@ export default {
       this.camera.lookAt(0.95, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
+      console.log(this.pressureData)
       this.CADMeshBackLeft = this.generateMeshWithTexture(
         camera,
         result,
         'heatmapBackLeft',
-        4,
-        8
+        16,
+        16,
+        this.pressureData ? this.pressureData.leftMatData : undefined
       )
 
       this.camera.position = new THREE.Vector3(0, 1.5, BACK_TOP_PROJECTION_POS)
@@ -192,7 +197,8 @@ export default {
         result,
         'heatmapBackTop',
         4,
-        8
+        8,
+        this.pressureData ? this.pressureData.backMatData : undefined
       )
 
       // Moving camera back to ideal distance from torso
@@ -201,9 +207,16 @@ export default {
       this.startAnimation()
     },
 
-    generateMeshWithTexture(camera, CADModel, canvasID, numRows, numCols) {
+    generateMeshWithTexture(
+      camera,
+      CADModel,
+      canvasID,
+      numRows,
+      numCols,
+      selectedMat
+    ) {
       // Projecting the heatmap onto the CAD model
-      this.initHeatMap(canvasID, numRows, numCols)
+      this.initHeatMap(canvasID, numRows, numCols, selectedMat)
       var texture = new THREE.CanvasTexture(document.getElementById(canvasID))
 
       // You can pass any option that belongs to MeshPhysicalMaterial
@@ -235,20 +248,22 @@ export default {
       this.renderer.render(this.scene, this.camera)
     },
 
-    initHeatMap(canvasID, numRows, numCols) {
+    initHeatMap(canvasID, numRows, numCols, selectedMat) {
       // Finding the max pressure val
-      for (let dataIdx = 0; dataIdx < this.PressureData.length; dataIdx++) {
-        this.maxHeatIntensity = Math.max(
-          this.PressureData[dataIdx].pressure,
-          this.maxHeatIntensity
-        )
-      }
+      // for (let dataIdx = 0; dataIdx < selectedMat.length; dataIdx++) {
+      //   this.maxHeatIntensity = Math.max(
+      //     selectedMat[dataIdx].pressure,
+      //     this.maxHeatIntensity
+      //   )
+      // }
+      console.log(selectedMat)
+      this.maxHeatIntensity = 545 //max value is 545 kPca
       // Setting heatmap parameters
       let heat = simpleheat(canvasID)
       heat.max(this.maxHeatIntensity)
       heat.radius(this.heatRadius, this.heatBlurRadius)
 
-      if (this.PressureData.length > 0) {
+      if (selectedMat && selectedMat.length > 0) {
         // Read in the pressure data populating the canvasWidth (450 wide) col by col then row by row
         let pressureNum = 0
         for (let row = 1; row <= numRows; row++) {
@@ -256,12 +271,13 @@ export default {
             heat.add([
               col * (this.canvasWidth / (numCols + 1)),
               row * (this.canvasHeight / (numRows + 1)),
-              this.PressureData[pressureNum].pressure,
+              selectedMat[pressureNum],
             ])
             pressureNum++
+            console.log(selectedMat[pressureNum])
 
             // Error check for less points in CSV than promised for the type of mat
-            if (pressureNum >= this.PressureData.length - 1) {
+            if (pressureNum >= selectedMat.length - 1) {
               break
             }
           }
