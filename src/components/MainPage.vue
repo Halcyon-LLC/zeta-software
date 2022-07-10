@@ -258,6 +258,6 @@ export default {
   width: 400px;
   height: 30px;
   margin-top: 15px;
-  background: linear-gradient(90deg, blue, cyan, green, yellow, red);
+  background: linear-gradient(90deg, blue 30%, cyan, lime, yellow, red);
 }
 </style>
