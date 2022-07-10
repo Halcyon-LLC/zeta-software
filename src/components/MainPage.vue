@@ -95,7 +95,6 @@ export default {
 
     window.ipc.on('LOAD_PRESSURE_DATA', (payload) => {
       this.pressureData = payload.content
-      //console.log(this.pressureData)
       this.isPressureDataEmpty = false
     })
 

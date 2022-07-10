@@ -45,6 +45,7 @@ export default {
       defaultHeatBlur: 10,
       defaultHeatRadius: 16,
       coordinateAxes: undefined,
+      maxPressureValue: 545, //denoted as 545 kPa. Based on sensor capture.
     }
   },
 
@@ -263,15 +264,7 @@ export default {
     },
 
     initHeatMap(canvasID, numRows, numCols, selectedMat, heatRadius, heatBlur) {
-      // Finding the max pressure val
-      // for (let dataIdx = 0; dataIdx < selectedMat.length; dataIdx++) {
-      //   this.maxHeatIntensity = Math.max(
-      //     selectedMat[dataIdx].pressure,
-      //     this.maxHeatIntensity
-      //   )
-      // }
-      console.log(selectedMat)
-      this.maxHeatIntensity = 545 //max value is 545 kPca
+      this.maxHeatIntensity = this.maxPressureValue //max value is 545 kPca
       // Setting heatmap parameters
       let heat = simpleheat(canvasID)
       heat.max(this.maxHeatIntensity)
@@ -288,7 +281,6 @@ export default {
               selectedMat[pressureNum],
             ])
             pressureNum++
-            console.log(selectedMat[pressureNum])
 
             // Error check for less points in CSV than promised for the type of mat
             if (pressureNum >= selectedMat.length - 1) {
