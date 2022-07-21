@@ -247,7 +247,7 @@ export default {
       const material = new ProjectedMaterial({
         camera, // the camera that acts as a projector
         texture, // the texture being projected
-        textureScale: 0.5, // scale down the texture a bit
+        textureScale: 0.5, // scale down the texture a bit. the smaller it is the more preserved the shape is.
         textureOffset: new THREE.Vector2(0.2, 0.1), // you can translate the texture if you want
         cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
         color: '#dfdfdf', // the color of the object if it's not projected on
