@@ -122,9 +122,10 @@ export default {
       this.camera.position = new THREE.Vector3(
         FRONT_RIGHT_PROJECTION_POS,
         0,
-        FRONT_Z_PROJECTION_POSITION
+        2.8
       )
-      this.camera.lookAt(0.05, 0, 0)
+
+      this.camera.lookAt(0.0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
 
@@ -140,8 +141,14 @@ export default {
       this.camera.position = new THREE.Vector3(
         FRONT_LEFT_PROJECTION_POS,
         0,
-        FRONT_Z_PROJECTION_POSITION
+        2.8
       )
+
+      this.CADMeshFrontRight.material.textureOffset = new THREE.Vector2(
+        0.2,
+        -0.1
+      )
+
       this.camera.lookAt(0.0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
@@ -171,12 +178,8 @@ export default {
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
 
-      this.camera.position = new THREE.Vector3(
-        BACK_LEFT_PROJECTION_POS,
-        0,
-        BACK_Z_PROJECTION_POSITION
-      )
-      this.camera.lookAt(0.95, 0, 0)
+      this.camera.position = new THREE.Vector3(1.3, -0.1, -5.7)
+      this.camera.lookAt(1.0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
 
@@ -188,9 +191,14 @@ export default {
         16,
         this.pressureData ? this.pressureData.leftMatData : undefined
       )
+      this.CADMeshBackLeft.material.textureScale = 0.15
+      this.CADMeshBackLeft.material.textureOffset = new THREE.Vector2(
+        -0.05,
+        0.0
+      )
 
       this.camera.position = new THREE.Vector3(0, 1.5, BACK_TOP_PROJECTION_POS)
-      this.camera.lookAt(0, 1.5, 0)
+      this.camera.lookAt(0, 1.89, 1.0)
       // update for the back mat, as it has the least data
       this.heatBlurRadius = 30
       this.heatRadius = 36
@@ -232,17 +240,18 @@ export default {
         heatRadius,
         heatBlur
       )
+
       var texture = new THREE.CanvasTexture(document.getElementById(canvasID))
 
       // You can pass any option that belongs to MeshPhysicalMaterial
       const material = new ProjectedMaterial({
         camera, // the camera that acts as a projector
         texture, // the texture being projected
-        textureScale: 1.0, // scale down the texture a bit
-        textureOffset: new THREE.Vector2(0, 0), // you can translate the texture if you want
+        textureScale: 0.5, // scale down the texture a bit
+        textureOffset: new THREE.Vector2(0.2, 0.1), // you can translate the texture if you want
         cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
         color: '#dfdfdf', // the color of the object if it's not projected on
-        roughness: 1.0,
+        roughness: 0.0,
         reflectivity: 0.0,
         metalness: 0.0,
       })
