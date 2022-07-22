@@ -110,22 +110,23 @@ export default {
       */
       // LEFT/RIGHT/BACK is from the perspective of the patient
       // Global coordinate system is from the perspective of the patient
-      const FRONT_LEFT_PROJECTION_POS = 1.2
-      const FRONT_RIGHT_PROJECTION_POS = -1.2
-      const BACK_LEFT_PROJECTION_POS = 1.3
-      const BACK_RIGHT_PROJECTION_POS = -1.3
-      const BACK_TOP_PROJECTION_POS = -1.37
+      const FRONT_X_LEFT_CAM_POS = 1.2
+      const FRONT_X_RIGHT_CAM_POS = -1.2
+      const BACK_X_LEFT_CAM_POS = 1.3
+      const BACK_X_RIGHT_CAM_POS = -1.3
+      const BACK_X_TOP_CAM_POS = -1.37
 
-      const FRONT_Z_PROJECTION_POSITION = 1.85
-      const BACK_Z_PROJECTION_POSITION = -0.62
+      const FRONT_RIGHT_Z_CAM_POS = 2.8
+      const BACK_LEFT_RIGHT_Z_CAM_POS = -5.7
+      const BACK_TOP_Z_CAM_POS = -8
 
       this.camera.position = new THREE.Vector3(
-        FRONT_RIGHT_PROJECTION_POS,
+        FRONT_X_RIGHT_CAM_POS,
         0,
-        2.8
+        FRONT_RIGHT_Z_CAM_POS
       )
 
-      this.camera.lookAt(0.0, 0, 0)
+      this.camera.lookAt(0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
 
@@ -138,11 +139,7 @@ export default {
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
 
-      this.camera.position = new THREE.Vector3(
-        FRONT_LEFT_PROJECTION_POS,
-        0,
-        2.8
-      )
+      this.camera.position = new THREE.Vector3(FRONT_X_LEFT_CAM_POS, 0, 2.8)
 
       this.CADMeshFrontRight.material.textureOffset = new THREE.Vector2(
         0.2,
@@ -162,11 +159,11 @@ export default {
       )
 
       this.camera.position = new THREE.Vector3(
-        BACK_RIGHT_PROJECTION_POS,
-        0,
-        BACK_Z_PROJECTION_POSITION
+        BACK_X_RIGHT_CAM_POS,
+        -0.1,
+        BACK_LEFT_RIGHT_Z_CAM_POS
       )
-      this.camera.lookAt(-0.95, 0, 0)
+      this.camera.lookAt(-1.0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshBackRight = this.generateMeshWithHeatMapTexture(
@@ -178,7 +175,17 @@ export default {
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
 
-      this.camera.position = new THREE.Vector3(1.3, -0.1, -5.7)
+      this.CADMeshBackRight.material.textureScale = 0.15
+      this.CADMeshBackRight.material.textureOffset = new THREE.Vector2(
+        -0.05,
+        0.0
+      )
+
+      this.camera.position = new THREE.Vector3(
+        1.3,
+        -0.1,
+        BACK_LEFT_RIGHT_Z_CAM_POS
+      )
       this.camera.lookAt(1.0, 0, 0)
       // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
@@ -197,7 +204,7 @@ export default {
         0.0
       )
 
-      this.camera.position = new THREE.Vector3(0, 1.5, BACK_TOP_PROJECTION_POS)
+      this.camera.position = new THREE.Vector3(0, 1.5, BACK_TOP_Z_CAM_POS)
       this.camera.lookAt(0, 1.89, 1.0)
       // update for the back mat, as it has the least data
       this.heatBlurRadius = 30
@@ -211,8 +218,10 @@ export default {
         4,
         8,
         this.pressureData ? this.pressureData.backMatData : undefined,
-        36,
-        36
+        42,
+        42,
+        new THREE.Vector2(0.0, -0.05),
+        0.09
       )
 
       // Moving camera back to ideal distance from torso
@@ -228,6 +237,8 @@ export default {
       numRows,
       numCols,
       selectedMat,
+      inTextureOffset,
+      inTextureScale,
       heatRadius = this.defaultHeatRadius,
       heatBlur = this.defaultHeatBlur
     ) {
