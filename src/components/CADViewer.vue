@@ -102,7 +102,7 @@ export default {
       cameraZ *= Z_ZOOM_SCALE // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
 
-      this.coordinateAxes = new THREE.AxesHelper(1.5)
+      //this.coordinateAxes = new THREE.AxesHelper(1.5)
       /*
         For each projection, we create a new mesh which has the canvas projected onto it's material
         Thus, the only thing we need to alter before creating a mesh, is move the camera to the specified
