@@ -114,22 +114,18 @@ export default {
       const FRONT_X_RIGHT_CAM_POS = -1.2
       const BACK_X_LEFT_CAM_POS = 1.3
       const BACK_X_RIGHT_CAM_POS = -1.3
-      const BACK_X_TOP_CAM_POS = -1.37
-
       const FRONT_RIGHT_Z_CAM_POS = 2.8
       const BACK_LEFT_RIGHT_Z_CAM_POS = -5.7
       const BACK_TOP_Z_CAM_POS = -8
 
+      //---- FRONT RIGHT MAT CALCULATIONS ----
       this.camera.position = new THREE.Vector3(
         FRONT_X_RIGHT_CAM_POS,
         0,
         FRONT_RIGHT_Z_CAM_POS
       )
-
       this.camera.lookAt(0, 0, 0)
-      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
-
       this.CADMeshFrontRight = this.generateMeshWithHeatMapTexture(
         camera,
         result,
@@ -138,16 +134,14 @@ export default {
         16,
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
-
       this.camera.position = new THREE.Vector3(FRONT_X_LEFT_CAM_POS, 0, 2.8)
-
       this.CADMeshFrontRight.material.textureOffset = new THREE.Vector2(
         0.2,
         -0.1
       )
 
+      //---- FRONT LEFT MAT CALCULATIONS ----
       this.camera.lookAt(0.0, 0, 0)
-      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshFrontLeft = this.generateMeshWithHeatMapTexture(
         camera,
@@ -155,16 +149,16 @@ export default {
         'heatmapFrontLeft',
         16,
         16,
-        this.pressureData ? this.pressureData.leftMatData : undefined
+        this.pressureData ? this.pressureData.leftMatData : undefined //redundant data is being passed in. Must fix.
       )
-
       this.camera.position = new THREE.Vector3(
         BACK_X_RIGHT_CAM_POS,
         -0.1,
         BACK_LEFT_RIGHT_Z_CAM_POS
       )
+
+      //---- BACK RIGHT MAT CALCULATIONS ----
       this.camera.lookAt(-1.0, 0, 0)
-      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshBackRight = this.generateMeshWithHeatMapTexture(
         camera,
@@ -174,22 +168,20 @@ export default {
         16,
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
-
       this.CADMeshBackRight.material.textureScale = 0.15
       this.CADMeshBackRight.material.textureOffset = new THREE.Vector2(
         -0.05,
         0.0
       )
 
+      //---- BACK LEFT MAT CALCULATIONS ----
       this.camera.position = new THREE.Vector3(
-        1.3,
+        BACK_X_LEFT_CAM_POS,
         -0.1,
         BACK_LEFT_RIGHT_Z_CAM_POS
       )
       this.camera.lookAt(1.0, 0, 0)
-      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = Math.PI * 0.5
-
       this.CADMeshBackLeft = this.generateMeshWithHeatMapTexture(
         camera,
         result,
@@ -204,25 +196,24 @@ export default {
         0.0
       )
 
+      //---- BACK TOP MAT CALCULATIONS ----
       this.camera.position = new THREE.Vector3(0, 1.5, BACK_TOP_Z_CAM_POS)
       this.camera.lookAt(0, 1.89, 1.0)
-      // update for the back mat, as it has the least data
       this.heatBlurRadius = 30
       this.heatRadius = 36
-      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
       this.camera.rotation.z = 0
       this.CADMeshBackTop = this.generateMeshWithHeatMapTexture(
         camera,
         result,
         'heatmapBackTop',
-        4,
+        4, // 4 x 8 mat for back top
         8,
         this.pressureData ? this.pressureData.backMatData : undefined,
         42,
-        42,
-        new THREE.Vector2(0.0, -0.05),
-        0.09
+        42
       )
+      this.CADMeshBackTop.material.textureOffset = new THREE.Vector2(0.0, -0.05)
+      this.CADMeshBackTop.material.textureScale = 0.095
 
       // Moving camera back to ideal distance from torso
       this.camera.position = new THREE.Vector3(0, 0, cameraZ)
@@ -237,8 +228,6 @@ export default {
       numRows,
       numCols,
       selectedMat,
-      inTextureOffset,
-      inTextureScale,
       heatRadius = this.defaultHeatRadius,
       heatBlur = this.defaultHeatBlur
     ) {
@@ -252,7 +241,7 @@ export default {
         heatBlur
       )
 
-      var texture = new THREE.CanvasTexture(document.getElementById(canvasID))
+      let texture = new THREE.CanvasTexture(document.getElementById(canvasID))
 
       // You can pass any option that belongs to MeshPhysicalMaterial
       const material = new ProjectedMaterial({
