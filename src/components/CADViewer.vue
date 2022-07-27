@@ -6,7 +6,6 @@
     <canvas id="heatmapFrontRight" width="450" height="250" class="heatMap" />
     <canvas id="heatmapBackLeft" width="450" height="250" class="heatMap" />
     <canvas id="heatmapBackRight" width="450" height="250" class="heatMap" />
-    <!-- <canvas id="heatmapBackTop" width="450" height="250" class="heatMap" /> -->
   </div>
 </template>
 
@@ -119,11 +118,7 @@ export default {
       const BACK_TOP_Z_CAM_POS = -8
 
       //---- FRONT RIGHT MAT CALCULATIONS ----
-      this.camera.position = new THREE.Vector3(
-        FRONT_X_RIGHT_CAM_POS,
-        0,
-        FRONT_RIGHT_Z_CAM_POS
-      )
+      this.camera.position = new THREE.Vector3(FRONT_X_RIGHT_CAM_POS, 0, 3.1)
       this.camera.lookAt(0, 0, 0)
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshFrontRight = this.generateMeshWithHeatMapTexture(
@@ -134,7 +129,7 @@ export default {
         16,
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
-      this.camera.position = new THREE.Vector3(FRONT_X_LEFT_CAM_POS, 0, 2.8)
+      this.camera.position = new THREE.Vector3(FRONT_X_LEFT_CAM_POS, 0, 3.1)
       this.CADMeshFrontRight.material.textureOffset = new THREE.Vector2(
         0.2,
         -0.1
@@ -195,25 +190,6 @@ export default {
         -0.05,
         0.0
       )
-
-      // //---- BACK TOP MAT CALCULATIONS ----
-      // this.camera.position = new THREE.Vector3(0, 1.5, BACK_TOP_Z_CAM_POS)
-      // this.camera.lookAt(0, 1.89, 1.0)
-      // this.heatBlurRadius = 30
-      // this.heatRadius = 36
-      // this.camera.rotation.z = 0
-      // this.CADMeshBackTop = this.generateMeshWithHeatMapTexture(
-      //   camera,
-      //   result,
-      //   'heatmapBackTop',
-      //   4, // 4 x 8 mat for back top
-      //   8,
-      //   this.pressureData ? this.pressureData.backMatData : undefined,
-      //   42,
-      //   42
-      // )
-      // this.CADMeshBackTop.material.textureOffset = new THREE.Vector2(0.0, -0.05)
-      // this.CADMeshBackTop.material.textureScale = 0.095
 
       // Moving camera back to ideal distance from torso
       this.camera.position = new THREE.Vector3(0, 0, cameraZ)
@@ -332,12 +308,8 @@ export default {
       this.CADMeshFrontRight.position.set(X_POS_FRONT_RIGHT_OFFSET, 0, 0.05)
       this.CADMeshBackLeft.position.set(0.0, 0.0, 0)
       this.CADMeshBackRight.position.set(-0.0, 0, 0)
-      // this.CADMeshFrontRight.rotation.y = -0.0174533
-      // this.CADMeshFrontLeft.rotation.y = 0.0174533
       this.CADMeshBackRight.rotation.y = -0.0174533
       this.CADMeshBackLeft.rotation.y = 0.0174533
-      // this.CADMeshBackTop.position.set(0, 0, Z_POS_BACK_OFFSET)
-      // this.CADMeshBackTop.rotation.set(-Math.PI / 512, 0, 0)
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
