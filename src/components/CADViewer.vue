@@ -168,7 +168,7 @@ export default {
         16,
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
-      this.CADMeshBackRight.material.textureScale = 0.25
+      this.CADMeshBackRight.material.textureScale = 0.2
       this.CADMeshBackRight.material.textureOffset = new THREE.Vector2(
         -0.05,
         0.0
@@ -190,7 +190,7 @@ export default {
         16,
         this.pressureData ? this.pressureData.leftMatData : undefined
       )
-      this.CADMeshBackLeft.material.textureScale = 0.25
+      this.CADMeshBackLeft.material.textureScale = 0.2
       this.CADMeshBackLeft.material.textureOffset = new THREE.Vector2(
         -0.05,
         0.0
@@ -330,8 +330,10 @@ export default {
 
       this.CADMeshFrontLeft.position.set(X_POS_FRONT_LEFT_OFFSET, 0, 0.05)
       this.CADMeshFrontRight.position.set(X_POS_FRONT_RIGHT_OFFSET, 0, 0.05)
-      this.CADMeshBackLeft.position.set(0.01, 0.0, 0)
-      this.CADMeshBackRight.position.set(-0.01, 0, 0)
+      this.CADMeshBackLeft.position.set(0.0, 0.0, 0)
+      this.CADMeshBackRight.position.set(-0.0, 0, 0)
+      // this.CADMeshFrontRight.rotation.y = -0.0174533
+      // this.CADMeshFrontLeft.rotation.y = 0.0174533
       this.CADMeshBackRight.rotation.y = -0.0174533
       this.CADMeshBackLeft.rotation.y = 0.0174533
       // this.CADMeshBackTop.position.set(0, 0, Z_POS_BACK_OFFSET)
