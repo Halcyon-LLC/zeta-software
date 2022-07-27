@@ -101,7 +101,15 @@ export default {
       cameraZ *= Z_ZOOM_SCALE // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
 
-      //this.coordinateAxes = new THREE.AxesHelper(1.5)
+      this.projectMats(camera, result)
+      // Moving camera back to ideal distance from torso
+      this.camera.position = new THREE.Vector3(0, 0, cameraZ)
+
+      this.createScene()
+      this.startAnimation()
+    },
+
+    projectMats(camera, result) {
       /*
         For each projection, we create a new mesh which has the canvas projected onto it's material
         Thus, the only thing we need to alter before creating a mesh, is move the camera to the specified
@@ -113,12 +121,17 @@ export default {
       const FRONT_X_RIGHT_CAM_POS = -1.2
       const BACK_X_LEFT_CAM_POS = 1.3
       const BACK_X_RIGHT_CAM_POS = -1.3
-      const FRONT_RIGHT_Z_CAM_POS = 2.8
+      const FRONT_Z_CAM_POS = 3.1
       const BACK_LEFT_RIGHT_Z_CAM_POS = -5.7
-      const BACK_TOP_Z_CAM_POS = -8
+      const BACK_TEXTURE_OFFSET = new THREE.Vector2(-0.05, 0.0)
+      const BACK_TEXTURE_SCALE = 0.2
 
       //---- FRONT RIGHT MAT CALCULATIONS ----
-      this.camera.position = new THREE.Vector3(FRONT_X_RIGHT_CAM_POS, 0, 3.1)
+      this.camera.position = new THREE.Vector3(
+        FRONT_X_RIGHT_CAM_POS,
+        0,
+        FRONT_Z_CAM_POS
+      )
       this.camera.lookAt(0, 0, 0)
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshFrontRight = this.generateMeshWithHeatMapTexture(
@@ -129,13 +142,17 @@ export default {
         16,
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
-      this.camera.position = new THREE.Vector3(FRONT_X_LEFT_CAM_POS, 0, 3.1)
       this.CADMeshFrontRight.material.textureOffset = new THREE.Vector2(
         0.2,
         -0.1
       )
 
       //---- FRONT LEFT MAT CALCULATIONS ----
+      this.camera.position = new THREE.Vector3(
+        FRONT_X_LEFT_CAM_POS,
+        0,
+        FRONT_Z_CAM_POS
+      )
       this.camera.lookAt(0.0, 0, 0)
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshFrontLeft = this.generateMeshWithHeatMapTexture(
@@ -146,13 +163,13 @@ export default {
         16,
         this.pressureData ? this.pressureData.leftMatData : undefined //redundant data is being passed in. Must fix.
       )
+
+      //---- BACK RIGHT MAT CALCULATIONS ----
       this.camera.position = new THREE.Vector3(
         BACK_X_RIGHT_CAM_POS,
         -0.1,
         BACK_LEFT_RIGHT_Z_CAM_POS
       )
-
-      //---- BACK RIGHT MAT CALCULATIONS ----
       this.camera.lookAt(-0.9, 0, 0)
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshBackRight = this.generateMeshWithHeatMapTexture(
@@ -163,11 +180,8 @@ export default {
         16,
         this.pressureData ? this.pressureData.rightMatData : undefined
       )
-      this.CADMeshBackRight.material.textureScale = 0.2
-      this.CADMeshBackRight.material.textureOffset = new THREE.Vector2(
-        -0.05,
-        0.0
-      )
+      this.CADMeshBackRight.material.textureScale = BACK_TEXTURE_SCALE
+      this.CADMeshBackRight.material.textureOffset = BACK_TEXTURE_OFFSET
 
       //---- BACK LEFT MAT CALCULATIONS ----
       this.camera.position = new THREE.Vector3(
@@ -185,16 +199,8 @@ export default {
         16,
         this.pressureData ? this.pressureData.leftMatData : undefined
       )
-      this.CADMeshBackLeft.material.textureScale = 0.2
-      this.CADMeshBackLeft.material.textureOffset = new THREE.Vector2(
-        -0.05,
-        0.0
-      )
-
-      // Moving camera back to ideal distance from torso
-      this.camera.position = new THREE.Vector3(0, 0, cameraZ)
-      this.createScene()
-      this.startAnimation()
+      this.CADMeshBackLeft.material.textureScale = BACK_TEXTURE_SCALE
+      this.CADMeshBackLeft.material.textureOffset = BACK_TEXTURE_OFFSET
     },
 
     generateMeshWithHeatMapTexture(
