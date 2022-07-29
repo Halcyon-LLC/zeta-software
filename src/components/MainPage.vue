@@ -1,7 +1,10 @@
 <template>
   <div class="mainPage">
     <div class="CADContainer">
-      <CADViewer :CADFile="selectedCADFile" :pressureData="pressureData" />
+      <CADViewer
+        :CADFile="selectedCADFile"
+        :pressureData="filteredPressureData"
+      />
       <div v-if="isPressureDataEmpty" class="italicText">
         No data is available.
       </div>
@@ -115,6 +118,39 @@ export default {
 
     isDataCaptureUnavailable() {
       return !this.isDeviceConnected || this.isDataCaptureProcessing
+    },
+
+    filteredPressureData() {
+      let frontLeftPressureData = []
+      let backLeftPressureData = []
+      let frontRightPressureData = []
+      let backRightPressureData = []
+      const VALUES_PER_ROW_TOTAL = 16
+      const VALUES_PER_ROW = 8
+      const PRESSURE_VALUES_PER_MAT = 256
+      let row_index = 0
+
+      if (this.pressureData) {
+        for (let i = 0; i < PRESSURE_VALUES_PER_MAT; i++) {
+          if (row_index < VALUES_PER_ROW) {
+            frontLeftPressureData.push(this.pressureData.leftMatData[i])
+            frontRightPressureData.push(this.pressureData.rightMatData[i])
+          } else {
+            backLeftPressureData.push(this.pressureData.leftMatData[i])
+            backRightPressureData.push(this.pressureData.rightMatData[i])
+          }
+
+          row_index++
+          row_index = row_index == VALUES_PER_ROW_TOTAL ? 0 : row_index
+        }
+      }
+
+      return {
+        frontLeftPressureData: frontLeftPressureData,
+        backLeftPressureData: backLeftPressureData,
+        frontRightPressureData: frontRightPressureData,
+        backRightPressureData: backRightPressureData,
+      }
     },
   },
 

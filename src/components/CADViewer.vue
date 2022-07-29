@@ -41,8 +41,8 @@ export default {
       CADMeshBackRight: undefined,
       CADMeshBackTop: undefined,
       maxHeatIntensity: 0,
-      defaultHeatBlur: 10,
-      defaultHeatRadius: 16,
+      defaultHeatBlur: 16,
+      defaultHeatRadius: 24,
       coordinateAxes: undefined,
       maxPressureValue: 545, //denoted as 545 kPa. Based on sensor capture.
     }
@@ -138,9 +138,9 @@ export default {
         camera,
         result,
         'heatmapFrontRight',
+        8,
         16,
-        16,
-        this.pressureData ? this.pressureData.rightMatData : undefined
+        this.pressureData ? this.pressureData.frontRightPressureData : undefined
       )
       this.CADMeshFrontRight.material.textureOffset = new THREE.Vector2(
         0.2,
@@ -159,9 +159,9 @@ export default {
         camera,
         result,
         'heatmapFrontLeft',
+        8,
         16,
-        16,
-        this.pressureData ? this.pressureData.leftMatData : undefined //redundant data is being passed in. Must fix.
+        this.pressureData ? this.pressureData.frontLeftPressureData : undefined
       )
 
       //---- BACK RIGHT MAT CALCULATIONS ----
@@ -176,9 +176,9 @@ export default {
         camera,
         result,
         'heatmapBackRight',
+        8,
         16,
-        16,
-        this.pressureData ? this.pressureData.rightMatData : undefined
+        this.pressureData ? this.pressureData.backRightPressureData : undefined
       )
       this.CADMeshBackRight.material.textureScale = BACK_TEXTURE_SCALE
       this.CADMeshBackRight.material.textureOffset = BACK_TEXTURE_OFFSET
@@ -195,9 +195,9 @@ export default {
         camera,
         result,
         'heatmapBackLeft',
+        8,
         16,
-        16,
-        this.pressureData ? this.pressureData.leftMatData : undefined
+        this.pressureData ? this.pressureData.backLeftPressureData : undefined
       )
       this.CADMeshBackLeft.material.textureScale = BACK_TEXTURE_SCALE
       this.CADMeshBackLeft.material.textureOffset = BACK_TEXTURE_OFFSET
