@@ -280,7 +280,7 @@ export default {
           }
         }
       }
-      heat.draw()
+      heat.draw(0.0)
     },
 
     resetCamera() {
