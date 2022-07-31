@@ -124,7 +124,7 @@ export default {
       const FRONT_Z_CAM_POS = 3.1
       const BACK_LEFT_RIGHT_Z_CAM_POS = -5.7
       const BACK_TEXTURE_OFFSET = new THREE.Vector2(-0.05, 0.0)
-      const BACK_TEXTURE_SCALE = 0.2
+      const BACK_TEXTURE_SCALE = 0.19
 
       //---- FRONT RIGHT MAT CALCULATIONS ----
       this.camera.position = new THREE.Vector3(
@@ -170,7 +170,7 @@ export default {
         -0.1,
         BACK_LEFT_RIGHT_Z_CAM_POS
       )
-      this.camera.lookAt(-0.9, 0, 0)
+      this.camera.lookAt(-0.9, -0.2, 0)
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshBackRight = this.generateMeshWithHeatMapTexture(
         camera,
@@ -189,7 +189,7 @@ export default {
         -0.1,
         BACK_LEFT_RIGHT_Z_CAM_POS
       )
-      this.camera.lookAt(0.9, 0, 0)
+      this.camera.lookAt(0.9, -0.2, 0)
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshBackLeft = this.generateMeshWithHeatMapTexture(
         camera,
@@ -264,19 +264,20 @@ export default {
       if (selectedMat && selectedMat.length > 0) {
         // Read in the pressure data populating the canvasWidth (450 wide) col by col then row by row
         let pressureNum = 0
-        for (let row = 1; row <= numRows; row++) {
-          for (let col = 1; col <= numCols; col++) {
+        console.log(selectedMat)
+
+        // Canvas is a rectangle so we use the rectangle's row and col as dimensions, not the pressure data
+        if (canvasID == 'heatmapFrontLeft' || canvasID == 'heatmapFrontRight') {
+          selectedMat.reverse()
+        }
+        for (let col = 1; col < numCols; col++) {
+          for (let row = numRows; row >= 1; row--) {
             heat.add([
-              col * (this.canvasWidth / (numCols + 1)),
-              row * (this.canvasHeight / (numRows + 1)),
+              (col * this.canvasWidth) / (numCols + 1),
+              (row * this.canvasHeight) / (numRows + 1),
               selectedMat[pressureNum],
             ])
             pressureNum++
-
-            // Error check for less points in CSV than promised for the type of mat
-            if (pressureNum >= selectedMat.length - 1) {
-              break
-            }
           }
         }
       }
@@ -299,14 +300,12 @@ export default {
       const Z_POS_BACK_OFFSET = -0.01
       const Z_POS_FRONT_OFFSET = 0.1
 
-      this.scene.add(this.coordinateAxes)
       this.scene.add(this.camera)
       this.scene.add(this.light)
       this.scene.add(this.CADMeshFrontLeft)
       this.scene.add(this.CADMeshFrontRight)
       this.scene.add(this.CADMeshBackLeft)
       this.scene.add(this.CADMeshBackRight)
-      this.scene.add(this.CADMeshBackTop)
 
       this.renderer.setSize(this.windowWidth, this.windowHeight)
 

@@ -130,14 +130,19 @@ export default {
       const PRESSURE_VALUES_PER_MAT = 256
       let row_index = 0
 
+      /*
+      Takes the 1x256 arrays of pressureData.leftMatData and pressureData.rightMatData and break up into
+      their respective front and back arrays. The first 8 columns in the left mat go onto the chest of the torso.
+      The next 8 go onto the back. The first 8 columns in the right mat go to the back and the next 8 go onto the chest.
+      */
       if (this.pressureData) {
         for (let i = 0; i < PRESSURE_VALUES_PER_MAT; i++) {
           if (row_index < VALUES_PER_ROW) {
             frontLeftPressureData.push(this.pressureData.leftMatData[i])
-            frontRightPressureData.push(this.pressureData.rightMatData[i])
+            backRightPressureData.push(this.pressureData.rightMatData[i])
           } else {
             backLeftPressureData.push(this.pressureData.leftMatData[i])
-            backRightPressureData.push(this.pressureData.rightMatData[i])
+            frontRightPressureData.push(this.pressureData.rightMatData[i])
           }
 
           row_index++
