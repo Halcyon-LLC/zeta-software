@@ -1,13 +1,21 @@
 <template>
   <div class="mainPage">
     <div class="CADContainer">
-      <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
+      <CADViewer
+        :CADFile="selectedCADFile"
+        :pressureData="filteredPressureData"
+      />
       <div v-if="isPressureDataEmpty" class="italicText">
         No data is available.
       </div>
       <div class="buttonContainer">
         <div class="button" style="width: 225px" @click="loadPressureData()">
           Load Pressure Data
+        </div>
+        <div class="heatMapLegend" />
+        <div class="legendTextContainer">
+          <div class="legendLeftText">0 kPa</div>
+          <div class="legendRightText">545 kPa</div>
         </div>
       </div>
     </div>
@@ -64,7 +72,7 @@ export default {
       lastName: '',
       selectedPath: '',
       selectedCADFile: '',
-      pressureData: [],
+      pressureData: undefined,
       isDataCaptureProcessing: false,
       isPressureDataEmpty: true,
       isDeviceConnected: false,
@@ -110,6 +118,44 @@ export default {
 
     isDataCaptureUnavailable() {
       return !this.isDeviceConnected || this.isDataCaptureProcessing
+    },
+
+    filteredPressureData() {
+      let frontLeftPressureData = []
+      let backLeftPressureData = []
+      let frontRightPressureData = []
+      let backRightPressureData = []
+      const VALUES_PER_ROW_TOTAL = 16
+      const VALUES_PER_ROW = 8
+      const PRESSURE_VALUES_PER_MAT = 256
+      let row_index = 0
+
+      /*
+      Takes the 1x256 arrays of pressureData.leftMatData and pressureData.rightMatData and break up into
+      their respective front and back arrays. The first 8 columns in the left mat go onto the chest of the torso.
+      The next 8 go onto the back. The first 8 columns in the right mat go to the back and the next 8 go onto the chest.
+      */
+      if (this.pressureData) {
+        for (let i = 0; i < PRESSURE_VALUES_PER_MAT; i++) {
+          if (row_index < VALUES_PER_ROW) {
+            frontLeftPressureData.push(this.pressureData.leftMatData[i])
+            backRightPressureData.push(this.pressureData.rightMatData[i])
+          } else {
+            backLeftPressureData.push(this.pressureData.leftMatData[i])
+            frontRightPressureData.push(this.pressureData.rightMatData[i])
+          }
+
+          row_index++
+          row_index = row_index == VALUES_PER_ROW_TOTAL ? 0 : row_index
+        }
+      }
+
+      return {
+        frontLeftPressureData: frontLeftPressureData,
+        backLeftPressureData: backLeftPressureData,
+        frontRightPressureData: frontRightPressureData,
+        backRightPressureData: backRightPressureData,
+      }
     },
   },
 
@@ -160,8 +206,8 @@ export default {
   display: flex;
   width: 600px;
   text-align: center;
+  align-items: center;
   flex-direction: column;
-  margin-left: 20px;
 }
 
 .textField {
@@ -218,5 +264,41 @@ export default {
   text-align: center;
   flex-direction: column;
   margin-left: 20px;
+}
+
+.buttonContainer {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.legendTextContainer {
+  display: flex;
+  width: 400px;
+  justify-content: right;
+  flex-direction: row;
+}
+
+.legendLeftText {
+  margin: 10px auto 0 0; /* top, right, bottom, left*/
+  font-family: 'Source Sans Pro';
+  font-size: 15px;
+  color: #87949b;
+}
+
+.legendRightText {
+  margin: 10px 0 0 auto;
+  font-family: 'Source Sans Pro';
+  font-size: 15px;
+  color: #87949b;
+}
+
+.heatMapLegend {
+  width: 400px;
+  height: 30px;
+  margin-top: 15px;
+  background: linear-gradient(90deg, blue 30%, cyan, lime, yellow, red);
 }
 </style>

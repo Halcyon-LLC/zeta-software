@@ -141,16 +141,42 @@ ipcMain.on('LOAD_PRESSURE_DATA', async (event) => {
 
   if (!selectedPath) return
 
-  let pressureArray = []
+  let rightPressureMat = []
+  let leftPressureMat = []
+  let backPressureMat = []
+  let pressureData = {}
+  const COL_END_LEFT_MAT = 16
+  let lineNum = 0
 
   fs.createReadStream(selectedPath)
-    .pipe(parse({ delimiter: ',', from_line: 2 }))
+    .pipe(parse({ headers: false, delimiter: ',' }))
     .on('data', function (row) {
-      pressureArray.push(row)
+      for (var key in row) {
+        //get left mat, 16x16(row, col) in size
+        if (key < COL_END_LEFT_MAT) {
+          leftPressureMat.push(row[key])
+        } else {
+          //on same row line, get right mat, 16x16 in size
+          rightPressureMat.push(row[key])
+        }
+      }
+      lineNum++
     })
     .on('end', function () {
       console.log('Finished loading pressure values')
-      event.reply('LOAD_PRESSURE_DATA', { content: pressureArray })
+      pressureData = {
+        rightMatData: rightPressureMat,
+        leftMatData: leftPressureMat,
+        backMatData: backPressureMat,
+      }
+      console.log(pressureData)
+      console.log(
+        'Right Left Back Length: ',
+        rightPressureMat.length,
+        leftPressureMat.length,
+        backPressureMat.length
+      )
+      event.reply('LOAD_PRESSURE_DATA', { content: pressureData })
     })
     .on('error', function (error) {
       console.error(error.message)
