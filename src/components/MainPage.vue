@@ -1,7 +1,10 @@
 <template>
   <div class="mainPage">
     <div class="CADContainer">
-      <CADViewer :CADFile="selectedCADFile" :PressureData="pressureData" />
+      <CADViewer
+        :CADFile="selectedCADFile"
+        :pressureData="filteredPressureData"
+      />
       <div v-if="isPressureDataEmpty" class="italicText">
         No data is available.
       </div>
@@ -69,7 +72,7 @@ export default {
       lastName: '',
       selectedPath: '',
       selectedCADFile: '',
-      pressureData: [],
+      pressureData: undefined,
       isDataCaptureProcessing: false,
       isPressureDataEmpty: true,
       isDeviceConnected: false,
@@ -115,6 +118,44 @@ export default {
 
     isDataCaptureUnavailable() {
       return !this.isDeviceConnected || this.isDataCaptureProcessing
+    },
+
+    filteredPressureData() {
+      let frontLeftPressureData = []
+      let backLeftPressureData = []
+      let frontRightPressureData = []
+      let backRightPressureData = []
+      const VALUES_PER_ROW_TOTAL = 16
+      const VALUES_PER_ROW = 8
+      const PRESSURE_VALUES_PER_MAT = 256
+      let row_index = 0
+
+      /*
+      Takes the 1x256 arrays of pressureData.leftMatData and pressureData.rightMatData and break up into
+      their respective front and back arrays. The first 8 columns in the left mat go onto the chest of the torso.
+      The next 8 go onto the back. The first 8 columns in the right mat go to the back and the next 8 go onto the chest.
+      */
+      if (this.pressureData) {
+        for (let i = 0; i < PRESSURE_VALUES_PER_MAT; i++) {
+          if (row_index < VALUES_PER_ROW) {
+            frontLeftPressureData.push(this.pressureData.leftMatData[i])
+            backRightPressureData.push(this.pressureData.rightMatData[i])
+          } else {
+            backLeftPressureData.push(this.pressureData.leftMatData[i])
+            frontRightPressureData.push(this.pressureData.rightMatData[i])
+          }
+
+          row_index++
+          row_index = row_index == VALUES_PER_ROW_TOTAL ? 0 : row_index
+        }
+      }
+
+      return {
+        frontLeftPressureData: frontLeftPressureData,
+        backLeftPressureData: backLeftPressureData,
+        frontRightPressureData: frontRightPressureData,
+        backRightPressureData: backRightPressureData,
+      }
     },
   },
 

@@ -2,8 +2,10 @@
   <div>
     <div class="button buttonSpacing" @click="resetCamera()">Reset View</div>
     <div ref="canvas" class="CADViewer" />
-    <canvas id="heatmapFront" width="450" height="250" class="heatMap" />
-    <canvas id="heatmapBack" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapFrontLeft" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapFrontRight" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapBackLeft" width="450" height="250" class="heatMap" />
+    <canvas id="heatmapBackRight" width="450" height="250" class="heatMap" />
   </div>
 </template>
 
@@ -19,7 +21,7 @@ export default {
 
   props: {
     CADFile: String,
-    PressureData: Array,
+    pressureData: Object,
   },
 
   data() {
@@ -33,17 +35,19 @@ export default {
       windowHeight: 500,
       canvasWidth: 450,
       canvasHeight: 250,
-      CADMesh: undefined,
-      CADMaterialBack: undefined,
-      CADMaterialFront: undefined,
+      CADMeshFrontLeft: undefined,
+      CADMeshFrontRight: undefined,
+      CADMeshBackLeft: undefined,
+      CADMeshBackRight: undefined,
       maxHeatIntensity: 0,
-      heatBlurRadius: 20,
-      heatRadius: 30,
+      defaultHeatBlur: 16,
+      defaultHeatRadius: 24,
+      maxPressureValue: 545, //denoted as 545 kPa. Based on sensor capture.
     }
   },
 
   watch: {
-    PressureData() {
+    pressureData() {
       this.scene.clear() //remove everything before adding to scene
       this.renderer.clear()
       this.init()
@@ -95,51 +99,139 @@ export default {
       cameraZ *= Z_ZOOM_SCALE // zoom out a little so that objects don't fill the screen
       this.camera.position.z = cameraZ
 
-      /*
-        For each projection, we create a new mesh which has the canvas projected onto it's material
-        Thus, the only thing we need to alter before creating a mesh, is move the camera to the specified
-        location you want to project the texture from
-      */
-      const LEFT_CHEST_PROJECTION_DISTANCE = 1.2
-      const FRONT_CHEST_PROJECTION_DISTANCE = 1.85
-
-      this.camera.position = new THREE.Vector3(
-        LEFT_CHEST_PROJECTION_DISTANCE,
-        0,
-        FRONT_CHEST_PROJECTION_DISTANCE
-      )
-      this.camera.lookAt(0, 0, 0)
-      // Rotates the camera 90 degrees counter clockwise to project the mat vertically larger
-      this.camera.rotation.z = Math.PI * -0.5
-      this.CADMesh = this.generateMeshWithTexture(
-        camera,
-        result,
-        'heatmapFront',
-        4,
-        8
-      )
-
-      // // Moving camera back to ideal distance from torso
+      this.projectMats(camera, result)
+      // Moving camera back to ideal distance from torso
       this.camera.position = new THREE.Vector3(0, 0, cameraZ)
 
       this.createScene()
       this.startAnimation()
     },
 
-    generateMeshWithTexture(camera, CADModel, canvasID, numRows, numCols) {
+    projectMats(camera, result) {
+      /*
+        For each projection, we create a new mesh which has the canvas projected onto it's material
+        Thus, the only thing we need to alter before creating a mesh, is move the camera to the specified
+        location you want to project the texture from
+      */
+      // LEFT/RIGHT/BACK is from the perspective of the patient
+      // Global coordinate system is from the perspective of the patient
+      const FRONT_X_LEFT_CAM_POS = 1.2
+      const FRONT_X_RIGHT_CAM_POS = -1.2
+      const BACK_X_LEFT_CAM_POS = 1.3
+      const BACK_X_RIGHT_CAM_POS = -1.3
+      const FRONT_Z_CAM_POS = 3.1
+      const BACK_LEFT_RIGHT_Z_CAM_POS = -5.7
+      const BACK_TEXTURE_OFFSET = new THREE.Vector2(-0.05, 0.0)
+      const BACK_TEXTURE_SCALE = 0.19
+
+      //---- FRONT RIGHT MAT CALCULATIONS ----
+      this.camera.position = new THREE.Vector3(
+        FRONT_X_RIGHT_CAM_POS,
+        0,
+        FRONT_Z_CAM_POS
+      )
+      this.camera.lookAt(0, 0, 0)
+      this.camera.rotation.z = Math.PI * 0.5
+      this.CADMeshFrontRight = this.generateMeshWithHeatMapTexture(
+        camera,
+        result,
+        'heatmapFrontRight',
+        8,
+        16,
+        this.pressureData ? this.pressureData.frontRightPressureData : undefined
+      )
+      this.CADMeshFrontRight.material.textureOffset = new THREE.Vector2(
+        0.2,
+        -0.1
+      )
+
+      //---- FRONT LEFT MAT CALCULATIONS ----
+      this.camera.position = new THREE.Vector3(
+        FRONT_X_LEFT_CAM_POS,
+        0,
+        FRONT_Z_CAM_POS
+      )
+      this.camera.lookAt(0.0, 0, 0)
+      this.camera.rotation.z = Math.PI * 0.5
+      this.CADMeshFrontLeft = this.generateMeshWithHeatMapTexture(
+        camera,
+        result,
+        'heatmapFrontLeft',
+        8,
+        16,
+        this.pressureData ? this.pressureData.frontLeftPressureData : undefined
+      )
+
+      //---- BACK RIGHT MAT CALCULATIONS ----
+      this.camera.position = new THREE.Vector3(
+        BACK_X_RIGHT_CAM_POS,
+        -0.1,
+        BACK_LEFT_RIGHT_Z_CAM_POS
+      )
+      this.camera.lookAt(-0.9, -0.2, 0)
+      this.camera.rotation.z = Math.PI * 0.5
+      this.CADMeshBackRight = this.generateMeshWithHeatMapTexture(
+        camera,
+        result,
+        'heatmapBackRight',
+        8,
+        16,
+        this.pressureData ? this.pressureData.backRightPressureData : undefined
+      )
+      this.CADMeshBackRight.material.textureScale = BACK_TEXTURE_SCALE
+      this.CADMeshBackRight.material.textureOffset = BACK_TEXTURE_OFFSET
+
+      //---- BACK LEFT MAT CALCULATIONS ----
+      this.camera.position = new THREE.Vector3(
+        BACK_X_LEFT_CAM_POS,
+        -0.1,
+        BACK_LEFT_RIGHT_Z_CAM_POS
+      )
+      this.camera.lookAt(0.9, -0.2, 0)
+      this.camera.rotation.z = Math.PI * 0.5
+      this.CADMeshBackLeft = this.generateMeshWithHeatMapTexture(
+        camera,
+        result,
+        'heatmapBackLeft',
+        8,
+        16,
+        this.pressureData ? this.pressureData.backLeftPressureData : undefined
+      )
+      this.CADMeshBackLeft.material.textureScale = BACK_TEXTURE_SCALE
+      this.CADMeshBackLeft.material.textureOffset = BACK_TEXTURE_OFFSET
+    },
+
+    generateMeshWithHeatMapTexture(
+      camera,
+      CADModel,
+      canvasID,
+      numRows,
+      numCols,
+      selectedMat,
+      heatRadius = this.defaultHeatRadius,
+      heatBlur = this.defaultHeatBlur
+    ) {
       // Projecting the heatmap onto the CAD model
-      this.initHeatMap(canvasID, numRows, numCols)
-      var texture = new THREE.CanvasTexture(document.getElementById(canvasID))
+      this.initHeatMap(
+        canvasID,
+        numRows,
+        numCols,
+        selectedMat,
+        heatRadius,
+        heatBlur
+      )
+
+      let texture = new THREE.CanvasTexture(document.getElementById(canvasID))
 
       // You can pass any option that belongs to MeshPhysicalMaterial
       const material = new ProjectedMaterial({
         camera, // the camera that acts as a projector
         texture, // the texture being projected
-        textureScale: 1.0, // scale down the texture a bit
-        textureOffset: new THREE.Vector2(0, 0), // you can translate the texture if you want
+        textureScale: 0.5, // scale down the texture a bit. the smaller it is the more preserved the shape is.
+        textureOffset: new THREE.Vector2(0.2, 0.1), // you can translate the texture if you want
         cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
         color: '#dfdfdf', // the color of the object if it's not projected on
-        roughness: 1.0,
+        roughness: 0.0,
         reflectivity: 0.0,
         metalness: 0.0,
       })
@@ -160,39 +252,34 @@ export default {
       this.renderer.render(this.scene, this.camera)
     },
 
-    initHeatMap(canvasID, numRows, numCols) {
-      // Finding the max pressure val
-      for (let dataIdx = 0; dataIdx < this.PressureData.length; dataIdx++) {
-        this.maxHeatIntensity = Math.max(
-          this.PressureData[dataIdx].pressure,
-          this.maxHeatIntensity
-        )
-      }
+    initHeatMap(canvasID, numRows, numCols, selectedMat, heatRadius, heatBlur) {
+      this.maxHeatIntensity = this.maxPressureValue //max value is 545 kPca
       // Setting heatmap parameters
       let heat = simpleheat(canvasID)
       heat.max(this.maxHeatIntensity)
-      heat.radius(this.heatRadius, this.heatBlurRadius)
+      heat.radius(heatRadius, heatBlur)
 
-      if (this.PressureData.length > 0) {
+      if (selectedMat && selectedMat.length > 0) {
         // Read in the pressure data populating the canvasWidth (450 wide) col by col then row by row
         let pressureNum = 0
-        for (let row = 1; row <= numRows; row++) {
-          for (let col = 1; col <= numCols; col++) {
+        console.log(selectedMat)
+
+        // Canvas is a rectangle so we use the rectangle's row and col as dimensions, not the pressure data
+        if (canvasID == 'heatmapFrontLeft' || canvasID == 'heatmapFrontRight') {
+          selectedMat.reverse()
+        }
+        for (let col = 1; col < numCols; col++) {
+          for (let row = numRows; row >= 1; row--) {
             heat.add([
-              col * (this.canvasWidth / (numCols + 1)),
-              row * (this.canvasHeight / (numRows + 1)),
-              this.PressureData[pressureNum].pressure,
+              (col * this.canvasWidth) / (numCols + 1),
+              (row * this.canvasHeight) / (numRows + 1),
+              selectedMat[pressureNum],
             ])
             pressureNum++
-
-            // Error check for less points in CSV than promised for the type of mat
-            if (pressureNum >= this.PressureData.length - 1) {
-              break
-            }
           }
         }
       }
-      heat.draw()
+      heat.draw(0.0)
     },
 
     resetCamera() {
@@ -203,11 +290,26 @@ export default {
     },
 
     createScene() {
+      // From perspective of patient which is also the perspective of the global coordinate system
+      const X_POS_FRONT_LEFT_OFFSET = 0.01
+      const X_POS_FRONT_RIGHT_OFFSET = -0.01
+      const Y_ROTATION_BACK = 0.0174533
+
       this.scene.add(this.camera)
       this.scene.add(this.light)
-      this.scene.add(this.CADMesh)
+      this.scene.add(this.CADMeshFrontLeft)
+      this.scene.add(this.CADMeshFrontRight)
+      this.scene.add(this.CADMeshBackLeft)
+      this.scene.add(this.CADMeshBackRight)
+
       this.renderer.setSize(this.windowWidth, this.windowHeight)
-      this.CADMesh.position.set(0, 0, 0)
+
+      this.CADMeshFrontLeft.position.set(X_POS_FRONT_LEFT_OFFSET, 0, 0.05)
+      this.CADMeshFrontRight.position.set(X_POS_FRONT_RIGHT_OFFSET, 0, 0.05)
+      this.CADMeshBackLeft.position.set(0.0, 0.0, 0)
+      this.CADMeshBackRight.position.set(-0.0, 0, 0)
+      this.CADMeshBackRight.rotation.y = -Y_ROTATION_BACK
+      this.CADMeshBackLeft.rotation.y = Y_ROTATION_BACK
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
