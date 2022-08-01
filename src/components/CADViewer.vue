@@ -39,11 +39,9 @@ export default {
       CADMeshFrontRight: undefined,
       CADMeshBackLeft: undefined,
       CADMeshBackRight: undefined,
-      CADMeshBackTop: undefined,
       maxHeatIntensity: 0,
       defaultHeatBlur: 16,
       defaultHeatRadius: 24,
-      coordinateAxes: undefined,
       maxPressureValue: 545, //denoted as 545 kPa. Based on sensor capture.
     }
   },
@@ -295,10 +293,7 @@ export default {
       // From perspective of patient which is also the perspective of the global coordinate system
       const X_POS_FRONT_LEFT_OFFSET = 0.01
       const X_POS_FRONT_RIGHT_OFFSET = -0.01
-      const X_POS_BACK_LEFT_OFFSET = 0.01
-      const X_POS_BACK_RIGHT_OFFSET = -0.01
-      const Z_POS_BACK_OFFSET = -0.01
-      const Z_POS_FRONT_OFFSET = 0.1
+      const Y_ROTATION_BACK = 0.0174533
 
       this.scene.add(this.camera)
       this.scene.add(this.light)
@@ -313,8 +308,8 @@ export default {
       this.CADMeshFrontRight.position.set(X_POS_FRONT_RIGHT_OFFSET, 0, 0.05)
       this.CADMeshBackLeft.position.set(0.0, 0.0, 0)
       this.CADMeshBackRight.position.set(-0.0, 0, 0)
-      this.CADMeshBackRight.rotation.y = -0.0174533
-      this.CADMeshBackLeft.rotation.y = 0.0174533
+      this.CADMeshBackRight.rotation.y = -Y_ROTATION_BACK
+      this.CADMeshBackLeft.rotation.y = Y_ROTATION_BACK
       this.scene.background = new THREE.Color('hsl(0, 100%, 100%)')
     },
 
