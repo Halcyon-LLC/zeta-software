@@ -183,6 +183,12 @@ ipcMain.on('LOAD_PRESSURE_DATA', async (event) => {
     })
 })
 
+// TODO: IMPLEMENT ME
+// ipcMain.on('INIT_PRESSURE_DATA', async (event) => {
+
+//   event.reply('INIT_PRESSURE_DATA', { content:  })
+// })
+
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
   if (process.platform === 'win32') {

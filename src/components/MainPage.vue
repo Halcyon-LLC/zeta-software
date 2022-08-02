@@ -38,6 +38,7 @@
       <div class="button" @click="selectDownloadDirectory()">
         Choose File Directory
       </div>
+      <div class="button" @click="initializeData()">Calibrate Pressure</div>
       <div
         :class="isDataCaptureUnavailable ? 'button disableButton' : 'button'"
         :disabled="isDataCaptureUnavailable == true"
@@ -105,6 +106,11 @@ export default {
       this.pressureData = payload.content
       this.isPressureDataEmpty = false
     })
+
+    // TODO: IMPLEMENT ME
+    // window.ipc.on('INIT_PRESSURE_DATA', (payload) => {
+    //
+    // })
 
     window.ipc.send('OPEN_SELECTED_FILE', undefined) //call the function to load the CAD file
   },
@@ -184,6 +190,10 @@ export default {
 
     loadPressureData() {
       window.ipc.send('LOAD_PRESSURE_DATA', undefined)
+    },
+
+    initializeData() {
+      window.ipc.send('INIT_PRESSURE_DATA', undefined)
     },
   },
 }
