@@ -38,10 +38,11 @@
       <div class="button" @click="selectDownloadDirectory()">
         Choose File Directory
       </div>
+      <div class="button" @click="calibrate()">Calibrate Pressure</div>
       <div
         :class="isDataCaptureUnavailable ? 'button disableButton' : 'button'"
         :disabled="isDataCaptureUnavailable == true"
-        @click="readFile(selectedPath, fileName)"
+        @click="capture(selectedPath, fileName)"
       >
         Capture Data
       </div>
@@ -89,7 +90,11 @@ export default {
       this.isDeviceConnected = payload.connected
     })
 
-    window.ipc.on('CAPTURE_DATA', () => {
+    window.ipc.on('CALIBRATE_PRESSURE_DATA', () => {
+      this.isDataCaptureProcessing = false //data capture is complete
+    })
+
+    window.ipc.on('CAPTURE_PRESSURE_DATA', () => {
       this.isDataCaptureProcessing = false //data capture is complete
     })
 
@@ -105,6 +110,11 @@ export default {
       this.pressureData = payload.content
       this.isPressureDataEmpty = false
     })
+
+    // TODO: IMPLEMENT ME
+    // window.ipc.on('INIT_PRESSURE_DATA', (payload) => {
+    //
+    // })
 
     window.ipc.send('OPEN_SELECTED_FILE', undefined) //call the function to load the CAD file
   },
@@ -168,10 +178,16 @@ export default {
       this.lastName = value
     },
 
-    readFile(path, fileName) {
+    calibrate(path, fileName) {
       const payload = { path, fileName }
       this.isDataCaptureProcessing = true
-      window.ipc.send('CAPTURE_DATA', payload)
+      window.ipc.send('CALIBRATE_PRESSURE_DATA', payload)
+    },
+
+    capture(path, fileName) {
+      const payload = { path, fileName }
+      this.isDataCaptureProcessing = true
+      window.ipc.send('CAPTURE_PRESSURE_DATA', payload)
     },
 
     selectDownloadDirectory() {
