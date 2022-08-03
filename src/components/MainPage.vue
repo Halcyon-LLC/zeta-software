@@ -112,7 +112,7 @@ export default {
   computed: {
     fileName() {
       return this.firstName || this.lastName
-        ? this.firstName + this.lastName
+        ? this.firstName + '_' + this.lastName
         : ''
     },
 

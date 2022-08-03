@@ -41,9 +41,9 @@ function isMCU(status) {
 }
 
 function captureData(payload) {
-  return new Promise((resolve, reject) => {
-    const { PythonShell } = require('python-shell')
+  const { PythonShell } = require('python-shell')
 
+  return new Promise((resolve, reject) => {
     let pythonPath =
       process.platform !== 'win32'
         ? '.venv/bin/python3'
@@ -59,7 +59,7 @@ function captureData(payload) {
       args: ['-d', destination],
     }
 
-    PythonShell.run('capture_data.py', options, function (err, results) {
+    PythonShell.run('capture_data.py', options, (err, results) => {
       if (err) {
         reject('Data capture failed for the following reason.\n' + err)
       } else {
