@@ -91,7 +91,7 @@ ipcMain.on('MCU_CONNECTION_CHECK', async (event) => {
   }
 })
 
-ipcMain.on('CAPTURE_DATA', async (event, payload) => {
+ipcMain.on('CAPTURE_PRESSURE_DATA', async (event, payload) => {
   let message = ''
   try {
     var start = performance.now()
@@ -102,7 +102,7 @@ ipcMain.on('CAPTURE_DATA', async (event, payload) => {
     // TODO: alert('Data capture failed')
     message = err
   }
-  event.reply('CAPTURE_DATA', { content: message })
+  event.reply('CAPTURE_PRESSUE_DATA', { content: message })
 })
 
 ipcMain.on('GET_FILE_LOCATION', async (event) => {
