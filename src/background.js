@@ -91,18 +91,24 @@ ipcMain.on('MCU_CONNECTION_CHECK', async (event) => {
   }
 })
 
+ipcMain.on('CALIBRATE_PRESSURE_DATA', async (event, payload) => {
+  let message = ''
+  try {
+    message = await firmwareInterface.captureData(payload, 1)
+  } catch (err) {
+    message = err
+  }
+  event.reply('CALIBRATE_PRESSURE_DATA', { content: message })
+})
+
 ipcMain.on('CAPTURE_PRESSURE_DATA', async (event, payload) => {
   let message = ''
   try {
-    var start = performance.now()
-    message = await firmwareInterface.captureData(payload)
-    var end = performance.now()
-    console.log(`${end - start} milliseconds`)
+    message = await firmwareInterface.captureData(payload, 0)
   } catch (err) {
-    // TODO: alert('Data capture failed')
     message = err
   }
-  event.reply('CAPTURE_PRESSUE_DATA', { content: message })
+  event.reply('CALIBRATE_PRESSURE_DATA', { content: message })
 })
 
 ipcMain.on('GET_FILE_LOCATION', async (event) => {
@@ -156,6 +162,7 @@ ipcMain.on('LOAD_PRESSURE_DATA', async (event) => {
         if (key < COL_END_LEFT_MAT) {
           leftPressureMat.push(row[key])
         } else {
+          console.log('heeeeeeee')
           //on same row line, get right mat, 16x16 in size
           rightPressureMat.push(row[key])
         }

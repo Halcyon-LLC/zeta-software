@@ -1,91 +1,97 @@
-from functools import partial
-from time import sleep
-
 import click
 import numpy as np
-import pyfirmata2
+from serial import Serial
+from serial.tools import list_ports
 
 
-class FSRSampler:
+def autodetect_port():
+    ports = list_ports.comports()
+    if not ports:
+        raise LookupError('No ports detected')
 
-    def __init__(self, num_sensors, sample_size):
-        self.PORT = pyfirmata2.Arduino.AUTODETECT
-        self.num_sensors = num_sensors
-        self.sample_size = sample_size
-        self.sampling_rate = 1000  # 1kHz
-        self.readings = np.zeros(self.num_sensors)
-        self.data_size_counter = np.zeros(self.num_sensors)
+    arduino_port = None
+    for port in ports:
+        name = port.__str__().lower()
+        if port.vid is not None or 'acm' in name or 'usbserial' in name or 'arduino' in name:
+            arduino_port = port.device
 
-    def __enter__(self):
-        self.board = pyfirmata2.Board(self.PORT, layout=pyfirmata2.boards.BOARDS['arduino_mega'])
-        return self
+    if arduino_port is None:
+        raise LookupError('Arduino not detected')
+    else:
+        return arduino_port
 
-    def __exit__(self, exc_type, exc_value, tb):
-        self.board.samplingOff()
-        self.board.exit()
-        print('Board connection successfully closed')
 
-    def _record_value(self, data, sensor_id):
-        if self.data_size_counter[sensor_id] < self.sample_size:
-            self.readings[sensor_id] += data
-            self.data_size_counter[sensor_id] += 1
+class VelostatMat():
 
-    def _convert_to_pressure(self, readings: np.array) -> np.array:
-        """Convert analog reading to pressure in pascal
-            voltage: voltage readings expressed in mV. float: [0, 5000]
-            mass: mass in kg derived from voltage reading mv
-            force: force in N calculated from m and gravitational acceleration g = 9.80665 m/s^2
-            area: FSR's active area in m^2 which is a circle with diameter of 12.7mm
+    def __init__(self, serial_port: Serial, num_pwr: int, num_gnd: int):
+        self.serial_port = serial_port
+        self.num_pwr = num_pwr
+        self.num_gnd = num_gnd
 
-        Args:
-            readings (np.array): annalog innput readings, ranges float: [0, 1]
+    def get_readings(self):
+        """Parse string sent from MCU.
+            MCU sends data from all pressure points in one line.
+            The parsed data will be reshaped later to proper size.
 
         Returns:
-            pressure (np.array): pressure in pascal
+            NDArray: 1 x N matrix where N is the number of pressure points
         """
-        voltage = readings * 5000  # mapping range [0, 1] to [0, 5000]
-        mass = 10**((1250 / 809) * np.log10(195300 / (5000 - voltage))) / 1000
+        while True:
+            try:
+                self.serial_port.write(b'\xFF')
+
+                vin_M1, vin_M2, *vouts = self.serial_port.readline().decode()[:-1].split(',')
+
+                self.vin = (int(vin_M1) + int(vin_M2)) / 2
+
+                length = len(vouts)
+                vouts_M1 = [int(vouts[i]) for i in range(0, length, 2)]
+                vouts_M2 = [int(vouts[i]) for i in range(1, length, 2)]
+                vouts = np.asarray([
+                    vouts_M1[(row * 16):((row + 1) * 16)] + vouts_M2[(row * 16):((row + 1) * 16)][::-1]
+                    for row in range(16)
+                ])
+
+                if vouts.shape == (16, 32):
+                    return vouts
+
+            except (ValueError, TypeError) as e:
+                print(e)
+                continue
+
+    def average_voltage_readings(self):
+        samples = 3
+        vouts = np.zeros((16, 32))
+
+        for _ in range(samples):
+            vouts += self.get_readings()
+
+        return vouts / samples
+
+    def capture(self):
+        vout = self.average_voltage_readings()
+        resistance_velostat = 1000 * (self.vin / vout - 1)
+        mass = 10**(np.log10((resistance_velostat - 90.87) / 10240) / -1.423)
         force = mass * 9.80665
-        area = np.pi * (12.7 / 2)**2 / 1000
-        pressure = force / area
+        pressure = force / 36
 
-        return pressure
-
-    def get_data(self) -> np.array:
-        self.board.samplingOn(1000 / self.sampling_rate)
-
-        for id in range(self.num_sensors):
-            recorder = partial(self._record_value, sensor_id=id)
-            self.board.analog[id].register_callback(recorder)
-            self.board.analog[id].enable_reporting()
-
-        while not np.all(self.data_size_counter >= self.sample_size):
-            print(f'progress: {self.data_size_counter.sum() / (self.sample_size * self.num_sensors) * 100 : .1f}%')
-            sleep(0.05)
-
-        print('progress: 100%')
-        return self._convert_to_pressure(self.readings / self.sample_size)
+        return np.flip(np.flip(pressure), axis=1)
 
 
 @click.command()
 @click.option('--destination', '-d', type=str, required=True)
-@click.option('--mats', '-m', type=int, default=1)
-@click.option('--mat-resolution', '-mr', type=int, default=5)
-@click.option('--sample-size', '-n', type=int, default=100)
-def cli(destination, mats, mat_resolution, sample_size):
+@click.option('--init', '-i', type=int, required=True)
+def cli(destination, init):
+    if init == 1:
+        destination += '_calibration.csv'
+    else:
+        destination += '.csv'
+
     open(destination, 'a').close()
 
-    total_num_sensors = mats * mat_resolution
-    with FSRSampler(num_sensors=total_num_sensors, sample_size=sample_size) as sampler:
-        readings = sampler.get_data()
-
-    # top left, top right, bottom left, bottom right, center
-    coordinates = np.array([[76.623169, 56.330269, 14.545361], [62.036472, 55.910305, -29.455305],
-                            [66.146713, 5.640682, -32.606579], [88.189301, 6.051844, 16.012398],
-                            [66.687050, 27.577545, -7.667533]])
-
-    out = np.concatenate((coordinates, readings.reshape(total_num_sensors, 1)), axis=1)
-    np.savetxt(destination, out, fmt='%.5f', delimiter=',', header='x,y,z,pressure')
+    with Serial(autodetect_port(), 115200, timeout=1) as serial_port:
+        mat = VelostatMat(serial_port, 16, 16)
+        np.savetxt(destination, mat.capture()*100, fmt='%.5f', delimiter=',')
 
 
 if __name__ == '__main__':

@@ -40,7 +40,7 @@ function isMCU(status) {
   })
 }
 
-function captureData(payload) {
+function captureData(payload, isInit) {
   const { PythonShell } = require('python-shell')
 
   return new Promise((resolve, reject) => {
@@ -56,7 +56,7 @@ function captureData(payload) {
       pythonPath: pythonPath,
       pythonOptions: ['-u'], // get print results in real-time
       scriptPath: './scripts/',
-      args: ['-d', destination],
+      args: ['-d', destination, '-i', isInit],
     }
 
     PythonShell.run('capture_data.py', options, (err, results) => {
@@ -81,7 +81,6 @@ function getDestination(payload) {
   now = now.toISOString().slice(0, -5).replaceAll(':', '-')
 
   let fileName = payload.fileName == '' ? now : payload.fileName
-  fileName += '.csv'
 
   return path.join(destination, fileName)
 }
