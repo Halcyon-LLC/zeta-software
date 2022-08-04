@@ -28,6 +28,7 @@ async function createWindow() {
       // for more info
       nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION,
       contextIsolation: !process.env.ELECTRON_NODE_INTEGRATION,
+      devTools: false,
       enableRemoteModule: false,
       // __static is set by webpack and will point to the public directory
       preload: path.resolve(__static, 'preload.js'),

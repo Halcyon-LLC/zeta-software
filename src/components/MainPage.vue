@@ -76,7 +76,7 @@ export default {
       pressureData: undefined,
       isDataCaptureProcessing: false,
       isPressureDataEmpty: true,
-      isDeviceConnected: true,
+      isDeviceConnected: false,
     }
   },
 
@@ -84,7 +84,7 @@ export default {
     // handle reply from the backend
     //This is remounted every single time mainPage re-renders.
     //This acts as a subscription, so you can accidentally attach multiple listeners if page re-renders.
-    // window.ipc.send('MCU_CONNECTION_CHECK')
+    window.ipc.send('MCU_CONNECTION_CHECK')
 
     window.ipc.on('MCU_CONNECTION_CHECK', (payload) => {
       this.isDeviceConnected = payload.connected
