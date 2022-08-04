@@ -119,10 +119,10 @@ export default {
       const FRONT_X_RIGHT_CAM_POS = -1.2
       const BACK_X_LEFT_CAM_POS = 1.3
       const BACK_X_RIGHT_CAM_POS = -1.3
-      const FRONT_Z_CAM_POS = 3.1
+      const FRONT_Z_CAM_POS = 3.3
       const BACK_LEFT_RIGHT_Z_CAM_POS = -5.7
-      const BACK_TEXTURE_OFFSET = new THREE.Vector2(-0.05, 0.0)
-      const BACK_TEXTURE_SCALE = 0.19
+      const BACK_TEXTURE_OFFSET = new THREE.Vector2(-0.005, 0.0)
+      const BACK_TEXTURE_SCALE = 0.211
 
       //---- FRONT RIGHT MAT CALCULATIONS ----
       this.camera.position = new THREE.Vector3(
@@ -130,7 +130,7 @@ export default {
         0,
         FRONT_Z_CAM_POS
       )
-      this.camera.lookAt(0, 0, 0)
+      this.camera.lookAt(-0.2, 0, 0)
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshFrontRight = this.generateMeshWithHeatMapTexture(
         camera,
@@ -141,7 +141,7 @@ export default {
         this.pressureData ? this.pressureData.frontRightPressureData : undefined
       )
       this.CADMeshFrontRight.material.textureOffset = new THREE.Vector2(
-        0.2,
+        0.1,
         -0.1
       )
 
@@ -151,7 +151,7 @@ export default {
         0,
         FRONT_Z_CAM_POS
       )
-      this.camera.lookAt(0.0, 0, 0)
+      this.camera.lookAt(0.2, 0, 0)
       this.camera.rotation.z = Math.PI * 0.5
       this.CADMeshFrontLeft = this.generateMeshWithHeatMapTexture(
         camera,
@@ -227,8 +227,8 @@ export default {
       const material = new ProjectedMaterial({
         camera, // the camera that acts as a projector
         texture, // the texture being projected
-        textureScale: 0.5, // scale down the texture a bit. the smaller it is the more preserved the shape is.
-        textureOffset: new THREE.Vector2(0.2, 0.1), // you can translate the texture if you want
+        textureScale: 0.51, // scale down the texture a bit. the smaller it is the more preserved the shape is.
+        textureOffset: new THREE.Vector2(0.1, 0.1), // you can translate the texture if you want
         cover: true, // enable background-size: cover behaviour, by default it's like background-size: contain
         color: '#dfdfdf', // the color of the object if it's not projected on
         roughness: 0.0,
